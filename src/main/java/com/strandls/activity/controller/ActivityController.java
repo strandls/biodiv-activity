@@ -49,10 +49,8 @@ public class ActivityController {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
-	@ApiOperation(value = "Find activity by ID", notes = "Returns activity details", response = ShowActivity.class)
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Success", response = ShowActivity.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "Traits not found", response = String.class) })
+	@ApiOperation(value = "Find activity by ID", notes = "Returns activity details", response = ShowActivity.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Traits not found", response = String.class) })
 	public Response getActivity(@PathParam("objectType") String objectType, @PathParam("objectId") String objectId) {
 
 		try {
@@ -72,9 +70,8 @@ public class ActivityController {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
-	@ApiOperation(value = "Find activity by ID for IBP", notes = "Returns activity details", response = ShowActivityIbp.class)
+	@ApiOperation(value = "Find activity by ID for IBP", notes = "Returns activity details", response = ShowActivityIbp.class, responseContainer = "List")
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Success", response = ShowActivityIbp.class, responseContainer = "List"),
 			@ApiResponse(code = 404, message = "Traits not found", response = String.class) })
 
 	public Response getIbpActivity(@PathParam("objectType") String objectType, @PathParam("objectId") String objectId) {

@@ -4,7 +4,7 @@
 package com.strandls.activity.pojo;
 
 import com.strandls.observation.pojo.RecoIbp;
-import com.strandls.traitsModule.pojo.FactValuePair;
+import com.strandls.traits.pojo.FactValuePair;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.userGroup.pojo.UserGroupIbp;
 import com.strandls.utility.pojo.FlagIbp;

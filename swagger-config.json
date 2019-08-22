@@ -1,0 +1,14 @@
+{
+  "modelPackage": "com.strandls.activity.pojo",
+  "apiPackage": "com.strandls.activity.controller",
+  "invokerPackage": "com.strandls.activity",
+  "groupId": "com.strandls.biodiv",
+  "artifactId": "activity-client",
+  "artifactVersion": "1.0.0-SNAPSHOT",
+  "fullJavaUtil": true,
+  "dateLibrary": "java8",
+  "library": "jersey1",
+  "developerName": "Abhishek Kumar Rudra",
+  "developerEmail": "abhishek.rudra@strandls.com",
+  "java8": true
+}

@@ -29,10 +29,10 @@ import com.strandls.activity.controller.ActivityControllerModule;
 import com.strandls.activity.dao.ActivityDaoModule;
 import com.strandls.activity.service.impl.ActivityServiceModule;
 import com.strandls.observation.controller.RecommendationServicesApi;
-import com.strandls.traitsModule.controllers.TraitsServiceApi;
+import com.strandls.traits.controller.TraitsServiceApi;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.userGroup.controller.UserGroupSerivceApi;
-import com.strandls.utility.controllers.UtilityServiceApi;
+import com.strandls.utility.controller.UtilityServiceApi;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 

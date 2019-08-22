@@ -21,13 +21,13 @@ import com.strandls.activity.pojo.ShowActivityIbp;
 import com.strandls.activity.service.ActivityService;
 import com.strandls.observation.controller.RecommendationServicesApi;
 import com.strandls.observation.pojo.RecoIbp;
-import com.strandls.traitsModule.controllers.TraitsServiceApi;
-import com.strandls.traitsModule.pojo.FactValuePair;
+import com.strandls.traits.controller.TraitsServiceApi;
+import com.strandls.traits.pojo.FactValuePair;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.userGroup.controller.UserGroupSerivceApi;
 import com.strandls.userGroup.pojo.UserGroupIbp;
-import com.strandls.utility.controllers.UtilityServiceApi;
+import com.strandls.utility.controller.UtilityServiceApi;
 import com.strandls.utility.pojo.FlagIbp;
 
 /**
