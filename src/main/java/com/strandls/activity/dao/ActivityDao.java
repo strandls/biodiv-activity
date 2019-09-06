@@ -64,4 +64,23 @@ public class ActivityDao extends AbstractDAO<Activity, Long> {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
+	public Integer findCommentCount(String objectType, Long objectId) {
+		String qry = "from Activity where rootHolderType = :objectType and rootHolderId = :id and activityType = \'Added a comment\' ";
+		Session session = sessionFactory.openSession();
+		Integer commentCount = 0;
+		try {
+			Query<Activity> query = session.createQuery(qry);
+			query.setParameter("objectType", objectType);
+			query.setParameter("id", objectId);
+			commentCount = query.getResultList().size();
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return commentCount;
+	}
+
 }

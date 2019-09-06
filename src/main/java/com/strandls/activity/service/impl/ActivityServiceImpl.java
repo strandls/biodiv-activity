@@ -14,6 +14,7 @@ import com.strandls.activity.dao.ActivityDao;
 import com.strandls.activity.dao.CommentsDao;
 import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.ActivityIbp;
+import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.Comments;
 import com.strandls.activity.pojo.CommentsIbp;
 import com.strandls.activity.pojo.ShowActivity;
@@ -55,7 +56,7 @@ public class ActivityServiceImpl implements ActivityService {
 
 	@Inject
 	private UserServiceApi userService;
-	
+
 	@Inject
 	private RecommendationServicesApi recoService;
 
@@ -85,13 +86,16 @@ public class ActivityServiceImpl implements ActivityService {
 	}
 
 	@Override
-	public List<ShowActivityIbp> fetchActivityIbp(String objectType, Long objectId) {
+	public ActivityResult fetchActivityIbp(String objectType, Long objectId) {
 
 		List<ShowActivityIbp> ibpActivity = new ArrayList<ShowActivityIbp>();
+		Integer commentCount = 0;
+		ActivityResult activityResult = null;
 
 		try {
 
 			List<Activity> activites = activityDao.findByObjectId(objectType, objectId);
+			commentCount = activityDao.findCommentCount(objectType, objectId);
 			for (Activity activity : activites) {
 
 				FactValuePair fact = null;
@@ -111,9 +115,9 @@ public class ActivityServiceImpl implements ActivityService {
 
 					} else {
 						reply = commentsDao.findById(activity.getSubRootHolderId());
-						 comment  = commentsDao.findById(activity.getActivityHolderId());
-						 replyIbp = new CommentsIbp(comment.getBody());
-						 commentIbp  = new CommentsIbp(reply.getBody());
+						comment = commentsDao.findById(activity.getActivityHolderId());
+						replyIbp = new CommentsIbp(comment.getBody());
+						commentIbp = new CommentsIbp(reply.getBody());
 					}
 
 				} else if (activity.getActivityType().equals("Added a fact")
@@ -128,25 +132,28 @@ public class ActivityServiceImpl implements ActivityService {
 
 				} else if (activity.getActivityType().equals("Posted resource")
 						|| activity.getActivityType().equals("Removed resoruce")) {
-					
+
 					userGroup = userGroupService.getIbpData(activity.getActivityHolderId().toString());
-				} else if (activity.getActivityType().equals("Suggested species name") 
+				} else if (activity.getActivityType().equals("Suggested species name")
 						|| activity.getActivityType().equals("Agreed on species name")
 						|| activity.getActivityType().equals("Suggestion removed")) {
-					
+
 					recoIbp = recoService.getRecoVote(activity.getActivityHolderId().toString());
 				}
 				UserIbp user = userService.getUserIbp(activity.getAuthorId().toString());
 				ActivityIbp activityIbp = new ActivityIbp(activity.getActivityDescription(), activity.getActivityType(),
 						activity.getDateCreated(), activity.getLastUpdated());
 
-				ibpActivity.add(new ShowActivityIbp(activityIbp, recoIbp, commentIbp, replyIbp, user, fact, userGroup, flag));
+				ibpActivity.add(
+						new ShowActivityIbp(activityIbp, recoIbp, commentIbp, replyIbp, user, fact, userGroup, flag));
+
 			}
+			activityResult = new ActivityResult(ibpActivity, commentCount);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 
-		return ibpActivity;
+		return activityResult;
 	}
 
 }

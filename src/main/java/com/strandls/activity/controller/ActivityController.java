@@ -16,8 +16,8 @@ import javax.ws.rs.core.Response.Status;
 
 import com.google.inject.Inject;
 import com.strandls.activity.ApiConstants;
+import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.ShowActivity;
-import com.strandls.activity.pojo.ShowActivityIbp;
 import com.strandls.activity.service.ActivityService;
 
 import io.swagger.annotations.Api;
@@ -70,15 +70,14 @@ public class ActivityController {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
-	@ApiOperation(value = "Find activity by ID for IBP", notes = "Returns activity details", response = ShowActivityIbp.class, responseContainer = "List")
-	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "Traits not found", response = String.class) })
+	@ApiOperation(value = "Find activity by ID for IBP", notes = "Returns activity details", response = ActivityResult.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Traits not found", response = String.class) })
 
 	public Response getIbpActivity(@PathParam("objectType") String objectType, @PathParam("objectId") String objectId) {
 		try {
 			Long id = Long.parseLong(objectId);
-			List<ShowActivityIbp> ibpActivity = service.fetchActivityIbp(objectType, id);
-			return Response.status(Status.OK).entity(ibpActivity).build();
+			ActivityResult activityResult = service.fetchActivityIbp(objectType, id);
+			return Response.status(Status.OK).entity(activityResult).build();
 
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();
