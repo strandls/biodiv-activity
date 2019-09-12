@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.strandls.activity</groupId>
-	<artifactId>activity</artifactId>
+	<artifactId>activity-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
@@ -27,9 +27,9 @@
 		<openapi-generator-cli.version>4.0.3</openapi-generator-cli.version>
 
 		<!-- Project property -->
-		<war-name>activity</war-name>
+		<war-name>activity-api</war-name>
 		<srcDir>src/main/webapp</srcDir>
-		<base-path>/activity/api</base-path>
+		<base-path>/activity-api/api</base-path>
 		<location>com.strandls.activity</location>
 	</properties>
 
@@ -223,7 +223,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>activity</finalName>
+		<finalName>activity-api</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>

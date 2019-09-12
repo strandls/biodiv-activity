@@ -5,6 +5,7 @@ package com.strandls.activity;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.ws.rs.core.Application;
@@ -38,15 +40,24 @@ public class ApplicationConfig extends Application {
 	 * 
 	 */
 	public ApplicationConfig() {
+		InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
+
+		Properties properties = new Properties();
+		try {
+			properties.load(in);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		BeanConfig beanConfig = new BeanConfig();
-		beanConfig.setVersion("1.0");
-		beanConfig.setTitle("Acitivity Module MicroServices");
-		beanConfig.setSchemes(new String[] { "http" });
-		beanConfig.setHost("localhost:8080");
-		beanConfig.setBasePath("/activity/api");
-		beanConfig.setResourcePackage("com.strandls.activity");
-		beanConfig.setScan(true);
-		beanConfig.setPrettyPrint(true);
+		beanConfig.setVersion(properties.getProperty("version"));
+		beanConfig.setTitle(properties.getProperty("title"));
+		beanConfig.setSchemes(properties.getProperty("schemes").split(","));
+		beanConfig.setHost(properties.getProperty("host"));
+		beanConfig.setBasePath(properties.getProperty("basePath"));
+		beanConfig.setResourcePackage(properties.getProperty("resourcePackage"));
+		beanConfig.setPrettyPrint(new Boolean(properties.getProperty("prettyPrint")));
+		beanConfig.setScan(new Boolean(properties.getProperty("scan")));
 	}
 
 	
