@@ -16,4 +16,5 @@ public class ApiConstants {
 	public static final String SERVICE = "/service";
 	public static final String PING = "/ping";
 	public static final String IBP = "/ibp";
+	public static final String LOG = "/log";
 }

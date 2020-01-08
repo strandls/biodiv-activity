@@ -28,6 +28,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import com.strandls.activity.controller.ActivityControllerModule;
 import com.strandls.activity.dao.ActivityDaoModule;
 import com.strandls.activity.service.impl.ActivityServiceModule;
+import com.strandls.authentication_utility.filter.FilterModule;
 import com.strandls.observation.controller.RecommendationServicesApi;
 import com.strandls.traits.controller.TraitsServiceApi;
 import com.strandls.user.controller.UserServiceApi;
@@ -64,7 +65,7 @@ public class ActivityServeletContextListener extends GuiceServletContextListener
 
 				configuration = configuration.configure();
 				SessionFactory sessionFactory = configuration.buildSessionFactory();
-				
+
 				Map<String, String> props = new HashMap<String, String>();
 				props.put("javax.ws.rs.Application", ApplicationConfig.class.getName());
 				props.put("jersey.config.server.wadl.disableWadl", "true");
@@ -75,9 +76,9 @@ public class ActivityServeletContextListener extends GuiceServletContextListener
 				bind(UtilityServiceApi.class).in(Scopes.SINGLETON);
 				bind(UserServiceApi.class).in(Scopes.SINGLETON);
 				bind(RecommendationServicesApi.class).in(Scopes.SINGLETON);
-				serve("/api/*").with(GuiceContainer.class,props);
+				serve("/api/*").with(GuiceContainer.class, props);
 			}
-		}, new ActivityControllerModule(), new ActivityServiceModule(),new ActivityDaoModule());
+		}, new ActivityControllerModule(), new FilterModule(), new ActivityServiceModule(), new ActivityDaoModule());
 
 		return injector;
 

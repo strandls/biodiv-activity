@@ -4,20 +4,25 @@
 package com.strandls.activity.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.strandls.activity.ActivityEnums;
 import com.strandls.activity.dao.ActivityDao;
 import com.strandls.activity.dao.CommentsDao;
 import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.ActivityIbp;
+import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.Comments;
 import com.strandls.activity.pojo.CommentsIbp;
-import com.strandls.activity.pojo.ShowActivity;
 import com.strandls.activity.pojo.ShowActivityIbp;
 import com.strandls.activity.service.ActivityService;
 import com.strandls.observation.controller.RecommendationServicesApi;
@@ -60,33 +65,25 @@ public class ActivityServiceImpl implements ActivityService {
 	@Inject
 	private RecommendationServicesApi recoService;
 
-	@Override
-	public List<ShowActivity> fetchActivity(String objectType, Long objectId) {
+	List<String> nullActivityList = new ArrayList<String>(Arrays.asList("Observation created", "Observation updated"));
 
-		Comments comment = null;
-		Comments reply = null;
-		List<ShowActivity> showActivites = new ArrayList<ShowActivity>();
-		List<Activity> activites = activityDao.findByObjectId(objectType, objectId);
-		for (Activity activity : activites) {
-			comment = null;
-			reply = null;
-			if (activity.getActivityType().equals("Added a comment")) {
+	List<String> recommendationActivityList = new ArrayList<String>(
+			Arrays.asList("obv unlocked", "Suggested species name", "obv locked", "Agreed on species name"));
 
-				if (activity.getActivityHolderId().equals(activity.getSubRootHolderId())) {
-					comment = commentsDao.findById(activity.getActivityHolderId());
+	List<String> userGroupActivityList = new ArrayList<String>(
+			Arrays.asList("Posted resource", "Removed resoruce", "Featured", "UnFeatured"));
 
-				} else {
-					comment = commentsDao.findById(activity.getSubRootHolderId());
-					reply = commentsDao.findById(activity.getActivityHolderId());
-				}
-			}
-			showActivites.add(new ShowActivity(activity, comment, reply));
-		}
-		return showActivites;
-	}
+	List<String> traitsActivityList = new ArrayList<String>(Arrays.asList("Updated fact", "Added a fact"));
+
+	List<String> flagActivityList = new ArrayList<String>(Arrays.asList("Flag removed", "Flagged"));
+
+	List<String> commentActivityList = new ArrayList<String>(Arrays.asList("Added a comment"));
+
+	List<String> observationActivityList = new ArrayList<String>(Arrays.asList("Featured", "Suggestion removed",
+			"Observation tag updated", "Custom field edited", "UnFeatured", "Observation species group updated"));
 
 	@Override
-	public ActivityResult fetchActivityIbp(String objectType, Long objectId) {
+	public ActivityResult fetchActivityIbp(String objectType, Long objectId, String offset, String limit) {
 
 		List<ShowActivityIbp> ibpActivity = new ArrayList<ShowActivityIbp>();
 		Integer commentCount = 0;
@@ -94,7 +91,7 @@ public class ActivityServiceImpl implements ActivityService {
 
 		try {
 
-			List<Activity> activites = activityDao.findByObjectId(objectType, objectId);
+			List<Activity> activites = activityDao.findByObjectId(objectType, objectId, offset, limit);
 			commentCount = activityDao.findCommentCount(objectType, objectId);
 			for (Activity activity : activites) {
 
@@ -107,7 +104,7 @@ public class ActivityServiceImpl implements ActivityService {
 				CommentsIbp commentIbp = null;
 				CommentsIbp replyIbp = null;
 
-				if (activity.getActivityType().equals("Added a comment")) {
+				if (commentActivityList.contains(activity.getActivityType())) {
 
 					if (activity.getActivityHolderId().equals(activity.getSubRootHolderId())) {
 						comment = commentsDao.findById(activity.getActivityHolderId());
@@ -120,25 +117,31 @@ public class ActivityServiceImpl implements ActivityService {
 						commentIbp = new CommentsIbp(reply.getBody());
 					}
 
-				} else if (activity.getActivityType().equals("Added a fact")
-						|| activity.getActivityType().equals("Updated fact")) {
+				} else if (traitsActivityList.contains(activity.getActivityType())) {
 
 					fact = traitsService.getFactIbp(activity.getActivityHolderId().toString());
 
-				} else if (activity.getActivityType().equals("Flagged")
-						|| activity.getActivityType().equals("Flag removed")) {
+				} else if (flagActivityList.contains(activity.getActivityType())) {
 
 					flag = utilityService.getFlagsIbp(activity.getActivityHolderId().toString());
 
-				} else if (activity.getActivityType().equals("Posted resource")
-						|| activity.getActivityType().equals("Removed resoruce")) {
+				} else if (userGroupActivityList.contains(activity.getActivityType())) {
+					if (!(activity.getActivityHolderId().equals(activity.getRootHolderId())))
+						userGroup = userGroupService.getIbpData(activity.getActivityHolderId().toString());
+				} else if (recommendationActivityList.contains(activity.getActivityType())
+						&& activity.getActivityHolderType().equals(ActivityEnums.recommendationVote.getValue())) {
 
-					userGroup = userGroupService.getIbpData(activity.getActivityHolderId().toString());
-				} else if (activity.getActivityType().equals("Suggested species name")
-						|| activity.getActivityType().equals("Agreed on species name")
-						|| activity.getActivityType().equals("Suggestion removed")) {
+					if (activity.getActivityHolderId() != null)
+						recoIbp = recoService.getRecoVote(activity.getActivityHolderId().toString());
+					if (recoIbp == null)
+						recoIbp = extractName(activity.getActivityDescription());
 
-					recoIbp = recoService.getRecoVote(activity.getActivityHolderId().toString());
+				} else if (observationActivityList.contains(activity.getActivityType())
+						&& activity.getActivityHolderType().equals(ActivityEnums.observation.getValue())) {
+					if (activity.getActivityType().equalsIgnoreCase("Suggestion removed")) {
+						recoIbp = extractName(activity.getActivityDescription());
+					}
+
 				}
 				UserIbp user = userService.getUserIbp(activity.getAuthorId().toString());
 				ActivityIbp activityIbp = new ActivityIbp(activity.getActivityDescription(), activity.getActivityType(),
@@ -154,6 +157,79 @@ public class ActivityServiceImpl implements ActivityService {
 		}
 
 		return activityResult;
+	}
+
+	@Override
+	public Activity logActivities(Long userId, ActivityLoggingData loggingData) {
+		Activity activity = null;
+		if (nullActivityList.contains(loggingData.getActivityType())) {
+			activity = new Activity(null, 0L, null, null, null, null, loggingData.getActivityType(), userId, new Date(),
+					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
+					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
+
+		} else if (recommendationActivityList.contains(loggingData.getActivityType())) {
+
+			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+					ActivityEnums.recommendationVote.getValue(), null, loggingData.getActivityType(), userId,
+					new Date(), new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
+					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
+
+		} else if (userGroupActivityList.contains(loggingData.getActivityType())) {
+			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+					ActivityEnums.userGroup.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
+					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
+
+		} else if (traitsActivityList.contains(loggingData.getActivityType())) {
+			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+					ActivityEnums.facts.getValue(), null, loggingData.getActivityType(), userId, new Date(), new Date(),
+					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), loggingData.getRootObjectId(),
+					ActivityEnums.observation.getValue(), true, null);
+
+		} else if (flagActivityList.contains(loggingData.getActivityType())) {
+			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+					ActivityEnums.flag.getValue(), null, loggingData.getActivityType(), userId, new Date(), new Date(),
+					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), loggingData.getRootObjectId(),
+					ActivityEnums.observation.getValue(), true, null);
+
+		} else if (observationActivityList.contains(loggingData.getActivityType())) {
+			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+					ActivityEnums.observation.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
+					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
+
+		} else if (commentActivityList.contains(loggingData.getActivityType())) {
+			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+					ActivityEnums.comments.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
+					loggingData.getSubRootObjectId(), ActivityEnums.comments.getValue(), true, null);
+		}
+
+		Activity result = activityDao.save(activity);
+		return result;
+
+	}
+
+	private RecoIbp extractName(String activityDesc) {
+		RecoIbp recoIbp = new RecoIbp();
+		String name = "";
+		String speciesId = "";
+		String regexName = Pattern.quote("<i>") + "(.*?)" + Pattern.quote("</i>");
+		Pattern patternName = Pattern.compile(regexName);
+		Matcher matcherName = patternName.matcher(activityDesc);
+		while (matcherName.find()) {
+			name = matcherName.group(1); // Since (.*?) is capturing group 1
+			recoIbp.setScientificName(name);
+		}
+		String regexSpeciesId = Pattern.quote("/show/") + "(.*?)" + Pattern.quote("?");
+		Pattern patternSpeciesId = Pattern.compile(regexSpeciesId);
+		Matcher matcherSpeciesId = patternSpeciesId.matcher(activityDesc);
+		while (matcherSpeciesId.find()) {
+			speciesId = matcherSpeciesId.group(1); // Since (.*?) is capturing group 1
+			if (speciesId.length() != 0)
+				recoIbp.setSpeciesId(Long.parseLong(speciesId));
+		}
+		return recoIbp;
 	}
 
 }

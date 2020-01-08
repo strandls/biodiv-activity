@@ -46,15 +46,17 @@ public class ActivityDao extends AbstractDAO<Activity, Long> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Activity> findByObjectId(String objectType, Long id) {
+	public List<Activity> findByObjectId(String objectType, Long id, String offset, String limit) {
 
-		String qry = "from Activity a where a.rootHolderType = :objectType and a.rootHolderId = :id order by a.lastUpdated";
+		String qry = "from Activity a where a.rootHolderType = :objectType and a.rootHolderId = :id order by a.lastUpdated desc";
 		Session session = sessionFactory.openSession();
 		List<Activity> result = null;
 		try {
 			Query<Activity> query = session.createQuery(qry);
 			query.setParameter("objectType", objectType);
 			query.setParameter("id", id);
+			query.setFirstResult(Integer.parseInt(offset));
+			query.setMaxResults(Integer.parseInt(limit));
 			result = query.getResultList();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
