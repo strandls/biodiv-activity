@@ -25,6 +25,7 @@ import com.strandls.activity.ApiConstants;
 import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.ActivityResult;
+import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.service.ActivityService;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
@@ -101,6 +102,30 @@ public class ActivityController {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 
+	}
+
+	@POST
+	@Path(ApiConstants.ADD + ApiConstants.COMMENT)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Adds a comment", notes = "Return the current activity", response = Activity.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to log a comment", response = String.class) })
+
+	public Response addComment(@Context HttpServletRequest request,
+			@ApiParam(name = "commentData") CommentLoggingData commentData) {
+		try {
+
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+
+			Activity result = service.addComment(userId, commentData);
+			return Response.status(Status.OK).entity(result).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
 	}
 
 }

@@ -21,6 +21,7 @@ import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.ActivityIbp;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.ActivityResult;
+import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.Comments;
 import com.strandls.activity.pojo.CommentsIbp;
 import com.strandls.activity.pojo.ShowActivityIbp;
@@ -230,6 +231,36 @@ public class ActivityServiceImpl implements ActivityService {
 				recoIbp.setSpeciesId(Long.parseLong(speciesId));
 		}
 		return recoIbp;
+	}
+
+	@Override
+	public Activity addComment(Long userId, CommentLoggingData commentData) {
+
+		if (commentData.getSubRootHolderId() == null) {
+			commentData.setSubRootHolderId(commentData.getRootHolderId());
+			commentData.setSubRootHolderType(commentData.getRootHolderType());
+		}
+		commentData.setSubRootHolderType(ActivityEnums.valueOf(commentData.getSubRootHolderType()).toString());
+		commentData.setRootHolderType(ActivityEnums.valueOf(commentData.getRootHolderType()).toString());
+
+		Comments comment = new Comments(null, 0L, userId, commentData.getBody(), commentData.getSubRootHolderId(),
+				commentData.getSubRootHolderType(), new Date(), new Date(), commentData.getRootHolderId(),
+				commentData.getRootHolderType(), commentData.getSubRootHolderId(), commentData.getSubRootHolderId(),
+				null, 205L);
+
+		Comments result = commentsDao.save(comment);
+
+		ActivityLoggingData activity = null;
+		if (result.getCommentHolderId().equals(result.getRootHolderId())) {
+			activity = new ActivityLoggingData(null, result.getRootHolderId(), result.getId(),
+					result.getRootHolderType(), result.getId(), "Added a comment");
+		} else {
+			activity = new ActivityLoggingData(null, result.getRootHolderId(), result.getCommentHolderId(),
+					result.getRootHolderType(), result.getId(), "Added a comment");
+		}
+		Activity activityResult = logActivities(userId, activity);
+
+		return activityResult;
 	}
 
 }
