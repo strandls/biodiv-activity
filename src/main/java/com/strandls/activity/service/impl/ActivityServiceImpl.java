@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.strandls.activity.ActivityEnums;
 import com.strandls.activity.dao.ActivityDao;
@@ -24,6 +25,7 @@ import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.Comments;
 import com.strandls.activity.pojo.CommentsIbp;
+import com.strandls.activity.pojo.DescriptionJson;
 import com.strandls.activity.pojo.ShowActivityIbp;
 import com.strandls.activity.service.ActivityService;
 import com.strandls.observation.controller.RecommendationServicesApi;
@@ -135,7 +137,16 @@ public class ActivityServiceImpl implements ActivityService {
 					if (activity.getActivityHolderId() != null)
 						recoIbp = recoService.getRecoVote(activity.getActivityHolderId().toString());
 					if (recoIbp == null)
-						recoIbp = extractName(activity.getActivityDescription());
+						if (activity.getActivityDescription() != null)
+							recoIbp = extractName(activity.getActivityDescription());
+						else {
+							String jsonData = activity.getDescriptionJson();
+							ObjectMapper om = new ObjectMapper();
+							DescriptionJson result = om.readValue(jsonData, DescriptionJson.class);
+							recoIbp = new RecoIbp();
+							recoIbp.setScientificName(result.getName());
+							recoIbp.setSpeciesId(result.getRo_id());
+						}
 
 				} else if (observationActivityList.contains(activity.getActivityType())
 						&& activity.getActivityHolderType().equals(ActivityEnums.observation.getValue())) {
