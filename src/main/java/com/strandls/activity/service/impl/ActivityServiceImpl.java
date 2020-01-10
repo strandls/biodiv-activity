@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.strandls.activity.ActivityEnums;
 import com.strandls.activity.dao.ActivityDao;
@@ -25,7 +24,7 @@ import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.Comments;
 import com.strandls.activity.pojo.CommentsIbp;
-import com.strandls.activity.pojo.DescriptionJson;
+import com.strandls.activity.pojo.MyJson;
 import com.strandls.activity.pojo.ShowActivityIbp;
 import com.strandls.activity.service.ActivityService;
 import com.strandls.observation.controller.RecommendationServicesApi;
@@ -140,12 +139,10 @@ public class ActivityServiceImpl implements ActivityService {
 						if (activity.getActivityDescription() != null)
 							recoIbp = extractName(activity.getActivityDescription());
 						else {
-							String jsonData = activity.getDescriptionJson();
-							ObjectMapper om = new ObjectMapper();
-							DescriptionJson result = om.readValue(jsonData, DescriptionJson.class);
+							MyJson jsonData = activity.getDescriptionJson();
 							recoIbp = new RecoIbp();
-							recoIbp.setScientificName(result.getName());
-							recoIbp.setSpeciesId(result.getRo_id());
+							recoIbp.setScientificName(jsonData.getName());
+							recoIbp.setSpeciesId(jsonData.getRo_id());
 						}
 
 				} else if (observationActivityList.contains(activity.getActivityType())
@@ -251,13 +248,21 @@ public class ActivityServiceImpl implements ActivityService {
 			commentData.setSubRootHolderId(commentData.getRootHolderId());
 			commentData.setSubRootHolderType(commentData.getRootHolderType());
 		}
-		commentData.setSubRootHolderType(ActivityEnums.valueOf(commentData.getSubRootHolderType()).toString());
-		commentData.setRootHolderType(ActivityEnums.valueOf(commentData.getRootHolderType()).toString());
+		commentData.setSubRootHolderType(ActivityEnums.valueOf(commentData.getSubRootHolderType()).getValue());
+		commentData.setRootHolderType(ActivityEnums.valueOf(commentData.getRootHolderType()).getValue());
+		Comments comment = null;
+		if (commentData.getRootHolderId().equals(commentData.getSubRootHolderId())) {
+			comment = new Comments(null, 0L, userId, commentData.getBody(), commentData.getSubRootHolderId(),
+					commentData.getSubRootHolderType(), new Date(), new Date(), commentData.getRootHolderId(),
+					commentData.getRootHolderType(), null, null, null, 205L);
 
-		Comments comment = new Comments(null, 0L, userId, commentData.getBody(), commentData.getSubRootHolderId(),
-				commentData.getSubRootHolderType(), new Date(), new Date(), commentData.getRootHolderId(),
-				commentData.getRootHolderType(), commentData.getSubRootHolderId(), commentData.getSubRootHolderId(),
-				null, 205L);
+		} else {
+			comment = new Comments(null, 0L, userId, commentData.getBody(), commentData.getSubRootHolderId(),
+					commentData.getSubRootHolderType(), new Date(), new Date(), commentData.getRootHolderId(),
+					commentData.getRootHolderType(), commentData.getSubRootHolderId(), commentData.getSubRootHolderId(),
+					null, 205L);
+
+		}
 
 		Comments result = commentsDao.save(comment);
 

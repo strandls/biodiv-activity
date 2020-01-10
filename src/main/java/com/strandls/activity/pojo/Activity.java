@@ -12,13 +12,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Type;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * @author Abhishek Rudra
  *
  */
-
+@org.hibernate.annotations.TypeDef(name = "MyJsonType", typeClass = MyJsonType.class)
 @Entity
 @Table(name = "activity_feed")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -44,7 +46,7 @@ public class Activity implements Serializable {
 	private Long subRootHolderId;
 	private String subRootHolderType;
 	private Boolean isShowable;
-	private String descriptionJson;
+	private MyJson descriptionJson;
 
 	/**
 	 * 
@@ -74,7 +76,7 @@ public class Activity implements Serializable {
 	public Activity(Long id, Long version, String activityDescription, Long activityHolderId, String activityHolderType,
 			String activityRootType, String activityType, Long authorId, Date dateCreated, Date lastUpdated,
 			Long rootHolderId, String rootHolderType, Long subRootHolderId, String subRootHolderType,
-			Boolean isShowable, String descriptionJson) {
+			Boolean isShowable, MyJson descriptionJson) {
 		super();
 		this.id = id;
 		this.version = version;
@@ -232,12 +234,12 @@ public class Activity implements Serializable {
 	}
 
 	@Column(name = "description_json")
-	public String getDescriptionJson() {
+	@Type(type = "MyJsonType")
+	public MyJson getDescriptionJson() {
 		return descriptionJson;
 	}
 
-	public void setDescriptionJson(String descriptionJson) {
+	public void setDescriptionJson(MyJson descriptionJson) {
 		this.descriptionJson = descriptionJson;
 	}
-
 }
