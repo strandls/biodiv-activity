@@ -126,6 +126,13 @@ public class ActivityServiceImpl implements ActivityService {
 				} else if (flagActivityList.contains(activity.getActivityType())) {
 
 					flag = utilityService.getFlagsIbp(activity.getActivityHolderId().toString());
+					if (flag == null) {
+						String description = activity.getDescriptionJson().getDescription();
+						String[] desc = description.split("\n");
+						flag = new FlagIbp();
+						flag.setFlag(desc[0]);
+						flag.setNotes(desc[1]);
+					}
 
 				} else if (userGroupActivityList.contains(activity.getActivityType())) {
 					if (!(activity.getActivityHolderId().equals(activity.getRootHolderId())))
@@ -196,10 +203,15 @@ public class ActivityServiceImpl implements ActivityService {
 					ActivityEnums.observation.getValue(), true, null);
 
 		} else if (flagActivityList.contains(loggingData.getActivityType())) {
+			MyJson myJson = new MyJson();
+			String[] description = loggingData.getActivityDescription().split(":");
+			String desc = description[0] + "\n" + description[1];
+			myJson.setAid(loggingData.getActivityId());
+			myJson.setDescription(desc);
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 					ActivityEnums.flag.getValue(), null, loggingData.getActivityType(), userId, new Date(), new Date(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), loggingData.getRootObjectId(),
-					ActivityEnums.observation.getValue(), true, null);
+					ActivityEnums.observation.getValue(), true, myJson);
 
 		} else if (observationActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
