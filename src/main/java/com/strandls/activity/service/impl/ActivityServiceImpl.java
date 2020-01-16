@@ -227,6 +227,12 @@ public class ActivityServiceImpl implements ActivityService {
 		}
 
 		Activity result = activityDao.save(activity);
+		try {
+			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+
 		return result;
 
 	}
