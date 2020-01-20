@@ -85,13 +85,15 @@ public class ActivityDao extends AbstractDAO<Activity, Long> {
 		return commentCount;
 	}
 
-	public List<Activity> findAllObservationActivity(String type) {
+	public List<Activity> findAllObservationActivity(String type, Integer startPosition) {
 		Session session = sessionFactory.openSession();
 		String qry = "from Activity where rootHolderType = :type order by id";
 		List<Activity> result = null;
 		try {
 			@SuppressWarnings("unchecked")
 			Query<Activity> query = session.createQuery(qry);
+			query.setFirstResult(startPosition);
+			query.setMaxResults(50000);
 			query.setParameter("type", type);
 			result = query.getResultList();
 		} catch (Exception e) {

@@ -292,103 +292,86 @@ public class ActivityServiceImpl implements ActivityService {
 
 			System.out.println("portal Name :" + portalName);
 			System.out.println("portal webAddress :" + portalWebAddress);
+			Integer startPosition = 0;
+			Boolean nextBatch = true;
+			Integer total = 0;
+			while (nextBatch) {
+				List<Activity> activities = activityDao.findAllObservationActivity(ActivityEnums.observation.getValue(),
+						startPosition);
+				total += activities.size();
+				if (activities.size() == 50000)
+					startPosition = total + 1;
+				else
+					nextBatch = false;
+			}
+			nextBatch = true;
 
-			List<Activity> activities = activityDao.findAllObservationActivity(ActivityEnums.observation.getValue());
-			int count = 0;
-			System.out.println("Total Number of Count :" + activities.size());
-			String description = "";
-			for (Activity activity : activities) {
-				description = "";
+			while (nextBatch) {
+				List<Activity> activities = activityDao.findAllObservationActivity(ActivityEnums.observation.getValue(),
+						startPosition);
+				if (activities.size() == 50000)
+					startPosition = total + 1;
+				else
+					nextBatch = false;
 
-				if (activity.getId() == 3710993 || activity.getId() == 13782175)
-					continue;
+				int count = 0;
+				System.out.println("Total Number of Count :" + total);
+				String description = "";
+				for (Activity activity : activities) {
+					description = "";
 
-				System.out.println("==========================BEGIN=======================");
+					if (activity.getId() == 3710993 || activity.getId() == 13782175)
+						continue;
 
-				System.out.println("Activity id :" + activity.getId() + " activity description :"
-						+ activity.getActivityDescription() + " activity Type:" + activity.getActivityType());
+					System.out.println("==========================BEGIN=======================");
 
-				if (traitsActivityList.contains(activity.getActivityType())) {
-					if (activity.getActivityDescription().trim().length() == 0) {
-						FactValuePair fact = traitsService.getFactIbp(activity.getActivityHolderId().toString());
-						description = fact.getName() + ":" + fact.getValue();
-						System.out.println("New facts description : " + description);
-					}
+					System.out.println("Activity id :" + activity.getId() + " activity description :"
+							+ activity.getActivityDescription() + " activity Type:" + activity.getActivityType());
 
-				} else if (flagActivityList.contains(activity.getActivityType())) {
-
-					FlagIbp flag = utilityService.getFlagsIbp(activity.getActivityHolderId().toString());
-					if (flag == null) {
-						description = activity.getDescriptionJson().getDescription();
-						String[] desc = description.split("\n");
-						flag = new FlagIbp();
-						flag.setFlag(desc[0]);
-						if (desc.length == 2)
-							flag.setNotes(desc[1]);
-					}
-					description = flag.getFlag() + ":" + flag.getNotes();
-					System.out.println("Flag Description :" + description);
-
-				} else if (userGroupActivityList.contains(activity.getActivityType())) {
-					if (!(activity.getActivityHolderId().equals(activity.getRootHolderId()))) {
-						UserGroupIbp userGroup = userGroupService.getIbpData(activity.getActivityHolderId().toString());
-
-						String activityDesc = activity.getActivityDescription();
-						String feature = null;
-						if (!(activityDesc.equalsIgnoreCase("Posted observation to group")
-								|| activityDesc.equals("Removed observation from group")))
-							feature = activityDesc;
-						UserGroupActivity ugActivity = new UserGroupActivity(userGroup.getId(), userGroup.getName(),
-								userGroup.getWebAddress(), feature);
-
-						description = objectMapper.writeValueAsString(ugActivity);
-
-						System.out.println("UserGroup description :" + description);
-					}
-
-				} else if (recommendationActivityList.contains(activity.getActivityType())
-						&& activity.getActivityHolderType().equals(ActivityEnums.recommendationVote.getValue())) {
-					RecoIbp recoIbp = null;
-					if (activity.getActivityHolderId() != null)
-						recoIbp = recoService.getRecoVote(activity.getActivityHolderId().toString());
-					RecoVoteActivity recoVote = new RecoVoteActivity();
-					if (activity.getActivityDescription() != null)
-						recoVote = extractName(activity.getActivityDescription());
-					if (recoVote.getGivenName() == null) {
-						MyJson jsonData = activity.getDescriptionJson();
-						if (jsonData != null) {
-							if (jsonData.getName() != null)
-								recoVote.setGivenName(jsonData.getName());
-							if (jsonData.getRo_id() != null)
-								recoVote.setSpeciesId(jsonData.getRo_id());
+					if (traitsActivityList.contains(activity.getActivityType())) {
+						if (activity.getActivityDescription().trim().length() == 0) {
+							FactValuePair fact = traitsService.getFactIbp(activity.getActivityHolderId().toString());
+							description = fact.getName() + ":" + fact.getValue();
+							System.out.println("New facts description : " + description);
 						}
 
-					}
+					} else if (flagActivityList.contains(activity.getActivityType())) {
 
-					String scientificName = null;
-					String commonName = null;
-					Long speciesId = null;
-					if (recoIbp != null) {
-						if (recoIbp.getScientificName() != null)
-							scientificName = recoIbp.getScientificName();
-						if (recoIbp.getCommonName() != null)
-							commonName = recoIbp.getCommonName();
-						if (recoIbp.getSpeciesId() != null)
-							speciesId = recoIbp.getSpeciesId();
-					}
+						FlagIbp flag = utilityService.getFlagsIbp(activity.getActivityHolderId().toString());
+						if (flag == null) {
+							description = activity.getDescriptionJson().getDescription();
+							String[] desc = description.split("\n");
+							flag = new FlagIbp();
+							flag.setFlag(desc[0]);
+							if (desc.length == 2)
+								flag.setNotes(desc[1]);
+						}
+						description = flag.getFlag() + ":" + flag.getNotes();
+						System.out.println("Flag Description :" + description);
 
-					if (speciesId == null)
-						speciesId = recoVote.getSpeciesId();
+					} else if (userGroupActivityList.contains(activity.getActivityType())) {
+						if (!(activity.getActivityHolderId().equals(activity.getRootHolderId()))) {
+							UserGroupIbp userGroup = userGroupService
+									.getIbpData(activity.getActivityHolderId().toString());
 
-					RecoVoteActivity reco = new RecoVoteActivity(scientificName, commonName, recoVote.getGivenName(),
-							speciesId);
+							String activityDesc = activity.getActivityDescription();
+							String feature = null;
+							if (!(activityDesc.equalsIgnoreCase("Posted observation to group")
+									|| activityDesc.equals("Removed observation from group")))
+								feature = activityDesc;
+							UserGroupActivity ugActivity = new UserGroupActivity(userGroup.getId(), userGroup.getName(),
+									userGroup.getWebAddress(), feature);
 
-					description = objectMapper.writeValueAsString(reco);
-					System.out.println("Reco : " + description);
+							description = objectMapper.writeValueAsString(ugActivity);
 
-				} else if (observationActivityList.contains(activity.getActivityType())
-						&& activity.getActivityHolderType().equals(ActivityEnums.observation.getValue())) {
-					if (activity.getActivityType().equalsIgnoreCase("Suggestion removed")) {
+							System.out.println("UserGroup description :" + description);
+						}
+
+					} else if (recommendationActivityList.contains(activity.getActivityType())
+							&& activity.getActivityHolderType().equals(ActivityEnums.recommendationVote.getValue())) {
+						RecoIbp recoIbp = null;
+						if (activity.getActivityHolderId() != null)
+							recoIbp = recoService.getRecoVote(activity.getActivityHolderId().toString());
 						RecoVoteActivity recoVote = new RecoVoteActivity();
 						if (activity.getActivityDescription() != null)
 							recoVote = extractName(activity.getActivityDescription());
@@ -403,39 +386,78 @@ public class ActivityServiceImpl implements ActivityService {
 
 						}
 
-						RecoVoteActivity reco = new RecoVoteActivity(null, null, recoVote.getGivenName(),
-								recoVote.getSpeciesId());
+						String scientificName = null;
+						String commonName = null;
+						Long speciesId = null;
+						if (recoIbp != null) {
+							if (recoIbp.getScientificName() != null)
+								scientificName = recoIbp.getScientificName();
+							if (recoIbp.getCommonName() != null)
+								commonName = recoIbp.getCommonName();
+							if (recoIbp.getSpeciesId() != null)
+								speciesId = recoIbp.getSpeciesId();
+						}
+
+						if (speciesId == null)
+							speciesId = recoVote.getSpeciesId();
+
+						RecoVoteActivity reco = new RecoVoteActivity(scientificName, commonName,
+								recoVote.getGivenName(), speciesId);
 
 						description = objectMapper.writeValueAsString(reco);
-						System.out.println("Obvservation Reco remove : " + description);
+						System.out.println("Reco : " + description);
 
-					} else if (activity.getActivityType().equalsIgnoreCase("UnFeatured")
-							|| activity.getActivityType().equalsIgnoreCase("Featured")) {
+					} else if (observationActivityList.contains(activity.getActivityType())
+							&& activity.getActivityHolderType().equals(ActivityEnums.observation.getValue())) {
+						if (activity.getActivityType().equalsIgnoreCase("Suggestion removed")) {
+							RecoVoteActivity recoVote = new RecoVoteActivity();
+							if (activity.getActivityDescription() != null)
+								recoVote = extractName(activity.getActivityDescription());
+							if (recoVote.getGivenName() == null) {
+								MyJson jsonData = activity.getDescriptionJson();
+								if (jsonData != null) {
+									if (jsonData.getName() != null)
+										recoVote.setGivenName(jsonData.getName());
+									if (jsonData.getRo_id() != null)
+										recoVote.setSpeciesId(jsonData.getRo_id());
+								}
 
-						String activityDesc = activity.getActivityDescription();
-						String feature = null;
-						if (!(activityDesc.equalsIgnoreCase("Posted observation to group")
-								|| activityDesc.equals("Removed observation from group")))
-							feature = activityDesc;
+							}
 
-						UserGroupActivity ugActivity = new UserGroupActivity(null, portalName, portalWebAddress,
-								feature);
+							RecoVoteActivity reco = new RecoVoteActivity(null, null, recoVote.getGivenName(),
+									recoVote.getSpeciesId());
 
-						description = objectMapper.writeValueAsString(ugActivity);
-						System.out.println("observation Feature unfeature : " + description);
+							description = objectMapper.writeValueAsString(reco);
+							System.out.println("Obvservation Reco remove : " + description);
+
+						} else if (activity.getActivityType().equalsIgnoreCase("UnFeatured")
+								|| activity.getActivityType().equalsIgnoreCase("Featured")) {
+
+							String activityDesc = activity.getActivityDescription();
+							String feature = null;
+							if (!(activityDesc.equalsIgnoreCase("Posted observation to group")
+									|| activityDesc.equals("Removed observation from group")))
+								feature = activityDesc;
+
+							UserGroupActivity ugActivity = new UserGroupActivity(null, portalName, portalWebAddress,
+									feature);
+
+							description = objectMapper.writeValueAsString(ugActivity);
+							System.out.println("observation Feature unfeature : " + description);
+						}
+
 					}
 
+					activity.setActivityDescription(description);
+					activityDao.update(activity);
+					count++;
+					System.out.println("Count :" + count + " out of " + total + "\t Activity Id :" + activity.getId());
+					System.out.println("==========================END========================");
 				}
 
-				activity.setActivityDescription(description);
-				activityDao.update(activity);
-				count++;
-				System.out.println(
-						"Count :" + count + " out of " + activities.size() + "\t Activity Id :" + activity.getId());
-				System.out.println("==========================END========================");
-			}
+				System.out.println("Migration Completed Successfully");
 
-			System.out.println("Migration Completed Successfully");
+			}
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
