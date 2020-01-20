@@ -19,4 +19,6 @@ public interface ActivityService {
 	public Activity logActivities(Long userId, ActivityLoggingData loggingData);
 
 	public Activity addComment(Long userId, CommentLoggingData commentData);
+
+	public void migrateData();
 }

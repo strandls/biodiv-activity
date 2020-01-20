@@ -19,4 +19,5 @@ public class ApiConstants {
 	public static final String LOG = "/log";
 	public static final String COMMENT = "/comment";
 	public static final String ADD = "/add";
+	public static final String MIGRATE = "/migrate";
 }

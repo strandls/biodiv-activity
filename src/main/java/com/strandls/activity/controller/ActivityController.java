@@ -128,4 +128,17 @@ public class ActivityController {
 		}
 	}
 
+	@POST
+	@Path(ApiConstants.MIGRATE)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	public Response migrateData() {
+		try {
+			service.migrateData();
+			return Response.status(Status.OK).entity("Migration Done").build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
 }
