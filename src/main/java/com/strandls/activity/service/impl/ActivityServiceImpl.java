@@ -305,6 +305,8 @@ public class ActivityServiceImpl implements ActivityService {
 					nextBatch = false;
 			}
 			nextBatch = true;
+			
+			startPosition = 0;
 
 			while (nextBatch) {
 				List<Activity> activities = activityDao.findAllObservationActivity(ActivityEnums.observation.getValue(),
