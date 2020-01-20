@@ -11,8 +11,8 @@ import com.strandls.activity.service.ActivityService;
  * @author Abhishek Rudra
  *
  */
-public class ActivityServiceModule extends AbstractModule{
-	
+public class ActivityServiceModule extends AbstractModule {
+
 	@Override
 	protected void configure() {
 		bind(ActivityService.class).to(ActivityServiceImpl.class).in(Scopes.SINGLETON);

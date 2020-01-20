@@ -27,6 +27,7 @@ import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.service.ActivityService;
+import com.strandls.activity.service.impl.MigrateThread;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 
@@ -130,12 +131,13 @@ public class ActivityController {
 
 	@POST
 	@Path(ApiConstants.MIGRATE)
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 
 	public Response migrateData() {
 		try {
-			service.migrateData();
-			return Response.status(Status.OK).entity("Migration Done").build();
+			Thread thread = new Thread(new MigrateThread());
+			thread.start();
+			return Response.status(Status.OK).entity("Migration Started").build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
