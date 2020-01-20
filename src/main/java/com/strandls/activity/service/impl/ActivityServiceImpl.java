@@ -294,6 +294,19 @@ public class ActivityServiceImpl implements ActivityService {
 			System.out.println("portal webAddress :" + portalWebAddress);
 			Integer startPosition = 0;
 			Boolean nextBatch = true;
+			Integer totalActvities = 0;
+			while (nextBatch) {
+				List<Activity> activities = activityDao.findAllObservationActivity(ActivityEnums.observation.getValue(),
+						startPosition);
+				totalActvities += activities.size();
+				if (activities.size() == 50000)
+					startPosition = totalActvities + 1;
+				else
+					nextBatch = false;
+			}
+			nextBatch = true;
+
+			startPosition = 0;
 			Integer total = 0;
 			while (nextBatch) {
 				List<Activity> activities = activityDao.findAllObservationActivity(ActivityEnums.observation.getValue(),
@@ -303,21 +316,9 @@ public class ActivityServiceImpl implements ActivityService {
 					startPosition = total + 1;
 				else
 					nextBatch = false;
-			}
-			nextBatch = true;
-			
-			startPosition = 0;
-
-			while (nextBatch) {
-				List<Activity> activities = activityDao.findAllObservationActivity(ActivityEnums.observation.getValue(),
-						startPosition);
-				if (activities.size() == 50000)
-					startPosition = total + 1;
-				else
-					nextBatch = false;
 
 				int count = 0;
-				System.out.println("Total Number of Count :" + total);
+				System.out.println("Total Number of Count :" + totalActvities);
 				String description = "";
 				for (Activity activity : activities) {
 					description = "";
@@ -453,13 +454,13 @@ public class ActivityServiceImpl implements ActivityService {
 					activity.setActivityDescription(description);
 					activityDao.update(activity);
 					count++;
-					System.out.println("Count :" + count + " out of " + total + "\t Activity Id :" + activity.getId());
+					System.out.println(
+							"Count :" + count + " out of " + totalActvities + "\t Activity Id :" + activity.getId());
 					System.out.println("==========================END========================");
 				}
 
-				System.out.println("Migration Completed Successfully");
-
 			}
+			System.out.println("Migration Completed Successfully");
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
