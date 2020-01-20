@@ -49,6 +49,9 @@ public class ActivityController {
 	@Inject
 	private ActivityService service;
 
+	@Inject
+	private MigrateThread migrationThread;
+
 	@GET
 	@Path(ApiConstants.PING)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -135,7 +138,7 @@ public class ActivityController {
 
 	public Response migrateData() {
 		try {
-			Thread thread = new Thread(new MigrateThread());
+			Thread thread = new Thread(migrationThread);
 			thread.start();
 			return Response.status(Status.OK).entity("Migration Started").build();
 		} catch (Exception e) {

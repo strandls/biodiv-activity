@@ -16,6 +16,7 @@ public class ActivityServiceModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(ActivityService.class).to(ActivityServiceImpl.class).in(Scopes.SINGLETON);
+		bind(MigrateThread.class).in(Scopes.SINGLETON);
 	}
 
 }
