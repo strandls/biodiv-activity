@@ -81,6 +81,7 @@ public class ActivityServeletContextListener extends GuiceServletContextListener
 				bind(UserServiceApi.class).in(Scopes.SINGLETON);
 				bind(RecommendationServicesApi.class).in(Scopes.SINGLETON);
 				serve("/api/*").with(GuiceContainer.class, props);
+				filter("/*").through(SwaggerFilter.class);
 			}
 		}, new ActivityControllerModule(), new FilterModule(), new ActivityServiceModule(), new ActivityDaoModule());
 
