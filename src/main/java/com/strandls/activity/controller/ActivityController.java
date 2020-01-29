@@ -136,6 +136,10 @@ public class ActivityController {
 	@Path(ApiConstants.MIGRATE)
 	@Produces(MediaType.TEXT_PLAIN)
 
+	@ApiOperation(value = "Migrate the Old activity data", notes = "Starts a Thread that Migrate the data", response = String.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Unable to start the process", response = String.class) })
+
 	public Response migrateData() {
 		try {
 			Thread thread = new Thread(migrationThread);
