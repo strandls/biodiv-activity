@@ -295,6 +295,7 @@ public class ActivityServiceImpl implements ActivityService {
 			Integer startPosition = 0;
 			Boolean nextBatch = true;
 			Integer totalActvities = 0;
+			
 			while (nextBatch) {
 				List<Activity> activities = activityDao.findAllObservationActivity(ActivityEnums.observation.getValue(),
 						startPosition);
@@ -308,6 +309,7 @@ public class ActivityServiceImpl implements ActivityService {
 
 			startPosition = 0;
 			Integer total = 0;
+			int count = 0;
 			while (nextBatch) {
 				List<Activity> activities = activityDao.findAllObservationActivity(ActivityEnums.observation.getValue(),
 						startPosition);
@@ -317,7 +319,7 @@ public class ActivityServiceImpl implements ActivityService {
 				else
 					nextBatch = false;
 
-				int count = 0;
+				
 				System.out.println("Total Number of Count :" + totalActvities);
 				String description = "";
 				for (Activity activity : activities) {
