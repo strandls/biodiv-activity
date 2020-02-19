@@ -124,9 +124,11 @@ public class ActivityController {
 
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
-
-			Activity result = service.addComment(userId, commentData);
-			return Response.status(Status.OK).entity(result).build();
+			if (commentData.getBody().trim().length() > 0) {
+				Activity result = service.addComment(userId, commentData);
+				return Response.status(Status.OK).entity(result).build();
+			}
+			return Response.status(Status.NOT_ACCEPTABLE).entity("Blank Comment Not allowed").build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
