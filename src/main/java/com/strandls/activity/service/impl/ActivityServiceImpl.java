@@ -33,6 +33,8 @@ import com.strandls.activity.pojo.RecoVoteActivity;
 import com.strandls.activity.pojo.ShowActivityIbp;
 import com.strandls.activity.pojo.UserGroupActivity;
 import com.strandls.activity.service.ActivityService;
+import com.strandls.observation.ApiException;
+import com.strandls.observation.controller.ObservationServiceApi;
 import com.strandls.observation.controller.RecommendationServicesApi;
 import com.strandls.observation.pojo.RecoIbp;
 import com.strandls.traits.controller.TraitsServiceApi;
@@ -75,6 +77,9 @@ public class ActivityServiceImpl implements ActivityService {
 
 	@Inject
 	private RecommendationServicesApi recoService;
+
+	@Inject
+	private ObservationServiceApi observationService;
 
 	List<String> nullActivityList = new ArrayList<String>(Arrays.asList("Observation created", "Observation updated"));
 
@@ -261,6 +266,12 @@ public class ActivityServiceImpl implements ActivityService {
 
 		Comments result = commentsDao.save(comment);
 
+		try {
+			observationService.updateLastRevised(commentData.getRootHolderId().toString());
+		} catch (ApiException e) {
+			logger.error(e.getMessage());
+		}
+
 		ActivityLoggingData activity = null;
 		if (result.getCommentHolderId().equals(result.getRootHolderId())) {
 			activity = new ActivityLoggingData(null, result.getRootHolderId(), result.getId(),
@@ -295,7 +306,7 @@ public class ActivityServiceImpl implements ActivityService {
 			Integer startPosition = 0;
 			Boolean nextBatch = true;
 			Integer totalActvities = 0;
-			
+
 			while (nextBatch) {
 				List<Activity> activities = activityDao.findAllObservationActivity(ActivityEnums.observation.getValue(),
 						startPosition);
@@ -319,7 +330,6 @@ public class ActivityServiceImpl implements ActivityService {
 				else
 					nextBatch = false;
 
-				
 				System.out.println("Total Number of Count :" + totalActvities);
 				String description = "";
 				for (Activity activity : activities) {
@@ -449,6 +459,12 @@ public class ActivityServiceImpl implements ActivityService {
 
 							description = objectMapper.writeValueAsString(ugActivity);
 							System.out.println("observation Feature unfeature : " + description);
+						} else if (activity.getActivityType().equalsIgnoreCase("Custom field edited")) {
+							MyJson jsonData = activity.getDescriptionJson();
+							if (jsonData != null) {
+								description = jsonData.getDescription();
+								System.out.println("observation costum Field updated : " + description);
+							}
 						}
 
 					}
@@ -469,4 +485,5 @@ public class ActivityServiceImpl implements ActivityService {
 		}
 
 	}
+
 }

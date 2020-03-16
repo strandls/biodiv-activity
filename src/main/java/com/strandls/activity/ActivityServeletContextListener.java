@@ -30,6 +30,7 @@ import com.strandls.activity.controller.ActivityControllerModule;
 import com.strandls.activity.dao.ActivityDaoModule;
 import com.strandls.activity.service.impl.ActivityServiceModule;
 import com.strandls.authentication_utility.filter.FilterModule;
+import com.strandls.observation.controller.ObservationServiceApi;
 import com.strandls.observation.controller.RecommendationServicesApi;
 import com.strandls.traits.controller.TraitsServiceApi;
 import com.strandls.user.controller.UserServiceApi;
@@ -80,6 +81,7 @@ public class ActivityServeletContextListener extends GuiceServletContextListener
 				bind(UtilityServiceApi.class).in(Scopes.SINGLETON);
 				bind(UserServiceApi.class).in(Scopes.SINGLETON);
 				bind(RecommendationServicesApi.class).in(Scopes.SINGLETON);
+				bind(ObservationServiceApi.class).in(Scopes.SINGLETON);
 				serve("/api/*").with(GuiceContainer.class, props);
 				filter("/*").through(SwaggerFilter.class);
 			}
