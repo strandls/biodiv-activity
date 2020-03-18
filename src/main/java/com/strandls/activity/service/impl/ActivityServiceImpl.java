@@ -217,7 +217,9 @@ public class ActivityServiceImpl implements ActivityService {
 		Activity result = activityDao.save(activity);
 		try {
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
-			mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null, loggingData);
+			if (!commentActivityList.contains(loggingData.getActivityType())) {
+				mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null, loggingData);
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -288,7 +290,7 @@ public class ActivityServiceImpl implements ActivityService {
 					result.getRootHolderType(), result.getId(), "Added a comment");
 		}
 		Activity activityResult = logActivities(userId, activity);
-//		mailService.sendCommentMail(, objectId, userId, activity);
+		mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(), activityResult.getRootHolderId(), userId, commentData, activity);
 
 		return activityResult;
 	}
