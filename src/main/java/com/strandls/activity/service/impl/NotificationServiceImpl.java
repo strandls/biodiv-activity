@@ -37,7 +37,7 @@ public class NotificationServiceImpl implements NotificationService {
 					data.put(NOTIFICATION_FIELDS.NOTIFICATION.getAction(), JsonUtil.unflattenJSON(notification));
 
 					RabbitMQProducer producer = new RabbitMQProducer(channel);
-					producer.produceNotification(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+					producer.produceNotification(RabbitMqConnection.EXCHANGE, RabbitMqConnection.NOTIFICATION_ROUTING_KEY, null,
 							JsonUtil.mapToJSON(data));
 				}
 			}
