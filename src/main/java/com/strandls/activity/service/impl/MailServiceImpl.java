@@ -86,7 +86,7 @@ public class MailServiceImpl implements MailService {
 					model.put(COMMENT_POST.FOLLOWER_ID.getAction(), follower.getId());
 					model.put(COMMENT_POST.FOLLOWER_NAME.getAction(), follower.getName());
 					model.put(COMMENT_POST.WHO_POSTED_ID.getAction(), who.getId());
-					model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), who.getIcon());
+					model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), who.getIcon() == null ? "": who.getIcon());
 					model.put(COMMENT_POST.WHO_POSTED_NAME.getAction(), who.getName());
 					model.put(SUGGEST_MAIL.GIVEN_NAME_ID.getAction(), "");
 					model.put(SUGGEST_MAIL.GIVEN_NAME_NAME.getAction(), "");
@@ -94,7 +94,7 @@ public class MailServiceImpl implements MailService {
 					model.put(COMMENT_POST.WHAT_POSTED_NAME.getAction(), observation.getCommonName());
 					model.put(COMMENT_POST.WHAT_POSTED_LOCATION.getAction(), observation.getLocation());
 					model.put(COMMENT_POST.WHAT_POSTED_OBSERVED_ON.getAction(), observation.getObservedOn());
-					model.put(COMMENT_POST.WHAT_POSTED_ICON.getAction(), observation.getIconURl());
+					model.put(COMMENT_POST.WHAT_POSTED_ICON.getAction(), observation.getIconURl() == null ? "": observation.getIconURl());
 					model.put(COMMENT_POST.WHAT_POSTED_USERGROUPS.getAction(), groups);
 					model.put(POST_TO_GROUP.WHERE_POSTED.getAction(), groups);
 					data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
