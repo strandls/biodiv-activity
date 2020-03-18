@@ -97,10 +97,6 @@ public class MailServiceImpl implements MailService {
 					model.put(COMMENT_POST.WHAT_POSTED_ICON.getAction(), observation.getIconURl());
 					model.put(COMMENT_POST.WHAT_POSTED_USERGROUPS.getAction(), groups);
 					model.put(POST_TO_GROUP.WHERE_POSTED.getAction(), groups);
-					if (activity != null) {
-						UserGroupActivity groupActivity = mapper.readValue(activity.getActivityDescription(),
-								UserGroupActivity.class);
-					}
 					data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
 					RabbitMQProducer producer = new RabbitMQProducer(channel);
 					producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
