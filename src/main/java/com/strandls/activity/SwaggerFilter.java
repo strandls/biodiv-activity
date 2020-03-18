@@ -44,7 +44,7 @@ public class SwaggerFilter implements Filter {
 
 	@Inject
 	private RecommendationServicesApi recoService;
-
+	
 	@Inject
 	private ObservationServiceApi observationService;
 
