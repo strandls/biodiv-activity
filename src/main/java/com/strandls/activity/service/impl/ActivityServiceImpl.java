@@ -217,7 +217,7 @@ public class ActivityServiceImpl implements ActivityService {
 		Activity result = activityDao.save(activity);
 		try {
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
-			if (!commentActivityList.contains(loggingData.getActivityType())) {
+			if (type != MAIL_TYPE.COMMENT_POST) {
 				mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null, loggingData);
 			}
 		} catch (Exception e) {
