@@ -81,9 +81,6 @@ public class MailServiceImpl implements MailService {
 					model.put(COMMENT_POST.SITENAME.getAction(), siteName);
 					model.put(COMMENT_POST.SERVER_URL.getAction(), serverUrl);
 					model.put(SUGGEST_MAIL.RECO_VOTE.getAction(), name);
-//							(observation.getScientificName() != null || !observation.getScientificName().isEmpty())
-//									? observation.getScientificName()
-//									: observation.getCommonName());
 					if (comment != null) {
 						model.put(COMMENT_POST.COMMENT_BODY.getAction(), comment.getBody());
 					}
@@ -92,7 +89,7 @@ public class MailServiceImpl implements MailService {
 					model.put(COMMENT_POST.WHO_POSTED_ID.getAction(), who.getId());
 					model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), who.getIcon() == null ? "": who.getIcon());
 					model.put(COMMENT_POST.WHO_POSTED_NAME.getAction(), who.getName());
-					model.put(SUGGEST_MAIL.GIVEN_NAME_ID.getAction(), reco.getSpeciesId());
+					model.put(SUGGEST_MAIL.GIVEN_NAME_ID.getAction(), reco.getSpeciesId() == null ? 0 : reco.getSpeciesId());
 					model.put(SUGGEST_MAIL.GIVEN_NAME_NAME.getAction(), name);
 					model.put(SUGGEST_MAIL.GIVEN_NAME_IS_SCIENTIFIC_NAME.getAction(), reco.getScientificName() != null || !reco.getScientificName().isEmpty());
 					model.put(COMMENT_POST.WHAT_POSTED_ID.getAction(), observation.getObservationId());
