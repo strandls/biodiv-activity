@@ -18,10 +18,10 @@ public class ActivityUtil {
         	String match = matcher.group();
         	TaggedUser user = new TaggedUser();
         	user.setName(match.substring(match.indexOf("[") + 1, match.lastIndexOf("]")));
-        	user.setName(match.substring(match.indexOf("(") + 1, match.lastIndexOf(")")));
+        	user.setId(Long.parseLong(match.substring(match.indexOf("(") + 1, match.lastIndexOf(")"))));
         	users.add(user);
-        }        
+        }
 		return users;
-	} 
+	}
 
 }

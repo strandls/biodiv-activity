@@ -1,6 +1,5 @@
 package com.strandls.activity.service.impl;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,13 +78,13 @@ public class MailServiceImpl implements MailService {
 						: reco.getCommonName();						
 			} catch (Exception ex) {
 				ex.printStackTrace();
-				logger.error(ex.getMessage());				
+				logger.error(ex.getMessage());
 			}
 			try {				
 				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
 			} catch (Exception ex) {
 				ex.printStackTrace();
-				logger.error(ex.getMessage());				
+				logger.error(ex.getMessage());
 			}
 			for (Recipients recipient : recipientsList) {
 				if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
@@ -115,8 +114,8 @@ public class MailServiceImpl implements MailService {
 								reco.getScientificName() != null || !reco.getScientificName().isEmpty());
 					}
 					model.put(COMMENT_POST.WHAT_POSTED_ID.getAction(), observation.getObservationId());
-					model.put(COMMENT_POST.WHAT_POSTED_NAME.getAction(), observation.getCommonName());
-					model.put(COMMENT_POST.WHAT_POSTED_LOCATION.getAction(), observation.getLocation());
+					model.put(COMMENT_POST.WHAT_POSTED_NAME.getAction(), observation.getCommonName() == null ? "": observation.getCommonName());
+					model.put(COMMENT_POST.WHAT_POSTED_LOCATION.getAction(), observation.getLocation() == null ? "": observation.getLocation());
 					model.put(COMMENT_POST.WHAT_POSTED_OBSERVED_ON.getAction(), observation.getObservedOn());
 					model.put(COMMENT_POST.WHAT_POSTED_ICON.getAction(),
 							observation.getIconURl() == null ? "" : observation.getIconURl());

@@ -165,11 +165,12 @@ public class ActivityServiceImpl implements ActivityService {
 	public Activity logActivities(Long userId, ActivityLoggingData loggingData) {
 		Activity activity = null;
 		MAIL_TYPE type = null;
+		String subject = "";
 		if (nullActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, null, null, null, null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
-
+			
 		} else if (recommendationActivityList.contains(loggingData.getActivityType())) {
 
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
@@ -188,7 +189,7 @@ public class ActivityServiceImpl implements ActivityService {
 					ActivityEnums.facts.getValue(), null, loggingData.getActivityType(), userId, new Date(), new Date(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), loggingData.getRootObjectId(),
 					ActivityEnums.observation.getValue(), true, null);
-
+			type = MAIL_TYPE.FACT_UPDATED;
 		} else if (flagActivityList.contains(loggingData.getActivityType())) {
 			MyJson myJson = new MyJson();
 			String[] description = loggingData.getActivityDescription().split(":");
@@ -206,6 +207,7 @@ public class ActivityServiceImpl implements ActivityService {
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
 
+			subject = loggingData.getActivityType();
 		} else if (commentActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 					ActivityEnums.comments.getValue(), null, loggingData.getActivityType(), userId, new Date(),
@@ -218,7 +220,8 @@ public class ActivityServiceImpl implements ActivityService {
 		try {
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
 			if (type != MAIL_TYPE.COMMENT_POST) {
-				mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null, loggingData);
+				mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
+						loggingData, subject);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -290,7 +293,8 @@ public class ActivityServiceImpl implements ActivityService {
 					result.getRootHolderType(), result.getId(), "Added a comment");
 		}
 		Activity activityResult = logActivities(userId, activity);
-		mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(), activityResult.getRootHolderId(), userId, commentData, activity);
+		mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(),
+				activityResult.getRootHolderId(), userId, commentData, activity, "");
 
 		return activityResult;
 	}
