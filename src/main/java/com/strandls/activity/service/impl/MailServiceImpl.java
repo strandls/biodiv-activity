@@ -76,9 +76,13 @@ public class MailServiceImpl implements MailService {
 
 				name = (reco.getScientificName() != null || !reco.getScientificName().isEmpty())
 						? reco.getScientificName()
-						: reco.getCommonName();
-						
-				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);						
+						: reco.getCommonName();						
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				logger.error(ex.getMessage());				
+			}
+			try {				
+				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				logger.error(ex.getMessage());				
@@ -117,8 +121,10 @@ public class MailServiceImpl implements MailService {
 					model.put(COMMENT_POST.WHAT_POSTED_ICON.getAction(),
 							observation.getIconURl() == null ? "" : observation.getIconURl());
 					model.put(COMMENT_POST.WHAT_POSTED_USERGROUPS.getAction(), groups);
-					model.put(POST_TO_GROUP.WHERE_WEB_ADDRESS.getAction(), userGroup.getWebAddress());
-					model.put(POST_TO_GROUP.WHERE_USER_GROUPNAME.getAction(), userGroup.getUserGroupName());
+					if (userGroup != null) {
+						model.put(POST_TO_GROUP.WHERE_WEB_ADDRESS.getAction(), userGroup.getWebAddress());
+						model.put(POST_TO_GROUP.WHERE_USER_GROUPNAME.getAction(), userGroup.getUserGroupName());
+					}
 					model.put(POST_TO_GROUP.SUBMIT_TYPE.getAction(),
 							activity.getActivityType().toLowerCase().contains("post") ? "post": "");
 					data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
