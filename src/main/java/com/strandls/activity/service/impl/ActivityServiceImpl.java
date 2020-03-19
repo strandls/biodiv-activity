@@ -221,7 +221,7 @@ public class ActivityServiceImpl implements ActivityService {
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
 			if (type != MAIL_TYPE.COMMENT_POST) {
 				mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
-						loggingData, subject);
+						loggingData);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -294,7 +294,7 @@ public class ActivityServiceImpl implements ActivityService {
 		}
 		Activity activityResult = logActivities(userId, activity);
 		mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(),
-				activityResult.getRootHolderId(), userId, commentData, activity, "");
+				activityResult.getRootHolderId(), userId, commentData, activity);
 
 		return activityResult;
 	}
