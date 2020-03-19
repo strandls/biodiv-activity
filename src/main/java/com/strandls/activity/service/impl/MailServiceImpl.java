@@ -70,19 +70,20 @@ public class MailServiceImpl implements MailService {
 			String name = "";
 			try {
 				reco = mapper.readValue(activity.getActivityDescription(), RecoVoteActivity.class);
-				
-				name = (reco.getScientificName() != null || !reco.getScientificName().isEmpty()) ? 
-						reco.getScientificName()
+
+				name = (reco.getScientificName() != null || !reco.getScientificName().isEmpty())
+						? reco.getScientificName()
 						: reco.getCommonName();
 			} catch (Exception ex) {
-				
+
 			}
 			for (Recipients recipient : recipientsList) {
 				if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
 					User follower = userService.getUser(String.valueOf(recipient.getId()));
 					Map<String, Object> data = new HashMap<String, Object>();
 					data.put(FIELDS.TYPE.getAction(), type.getAction());
-					data.put(FIELDS.TO.getAction(), PropertyFileUtil.fetchProperty("config.properties", "temp_email").split(","));
+					data.put(FIELDS.TO.getAction(),
+							PropertyFileUtil.fetchProperty("config.properties", "temp_email").split(","));
 					Map<String, Object> model = new HashMap<String, Object>();
 					model.put(COMMENT_POST.TYPE.getAction(), type.getAction());
 					model.put(COMMENT_POST.SITENAME.getAction(), siteName);
@@ -94,20 +95,25 @@ public class MailServiceImpl implements MailService {
 					model.put(COMMENT_POST.FOLLOWER_ID.getAction(), follower.getId());
 					model.put(COMMENT_POST.FOLLOWER_NAME.getAction(), follower.getName());
 					model.put(COMMENT_POST.WHO_POSTED_ID.getAction(), who.getId());
-					model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), who.getIcon() == null ? "": who.getIcon());
-					model.put(COMMENT_POST.WHO_POSTED_NAME.getAction(), who.getName());
+					model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), who.getIcon() == null ? "" : who.getIcon());
+					model.put(COMMENT_POST.WHO_POSTED_NAME.getAction(), who.getId() == userId ? "You" : who.getName());
 					if (reco != null) {
-						model.put(SUGGEST_MAIL.GIVEN_NAME_ID.getAction(), reco.getSpeciesId() == null ? 0 : reco.getSpeciesId());
+						model.put(SUGGEST_MAIL.GIVEN_NAME_ID.getAction(),
+								reco.getSpeciesId() == null ? 0 : reco.getSpeciesId());
 						model.put(SUGGEST_MAIL.GIVEN_NAME_NAME.getAction(), name);
-						model.put(SUGGEST_MAIL.GIVEN_NAME_IS_SCIENTIFIC_NAME.getAction(), reco.getScientificName() != null || !reco.getScientificName().isEmpty());						
+						model.put(SUGGEST_MAIL.GIVEN_NAME_IS_SCIENTIFIC_NAME.getAction(),
+								reco.getScientificName() != null || !reco.getScientificName().isEmpty());
 					}
 					model.put(COMMENT_POST.WHAT_POSTED_ID.getAction(), observation.getObservationId());
 					model.put(COMMENT_POST.WHAT_POSTED_NAME.getAction(), observation.getCommonName());
 					model.put(COMMENT_POST.WHAT_POSTED_LOCATION.getAction(), observation.getLocation());
 					model.put(COMMENT_POST.WHAT_POSTED_OBSERVED_ON.getAction(), observation.getObservedOn());
-					model.put(COMMENT_POST.WHAT_POSTED_ICON.getAction(), observation.getIconURl() == null ? "": observation.getIconURl());
+					model.put(COMMENT_POST.WHAT_POSTED_ICON.getAction(),
+							observation.getIconURl() == null ? "" : observation.getIconURl());
 					model.put(COMMENT_POST.WHAT_POSTED_USERGROUPS.getAction(), groups);
 					model.put(POST_TO_GROUP.WHERE_POSTED.getAction(), groups);
+					model.put(POST_TO_GROUP.SUBMIT_TYPE.getAction(),
+							activity.getActivityType().toLowerCase().contains("post") ? "post": "");
 					data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
 					RabbitMQProducer producer = new RabbitMQProducer(channel);
 					producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
