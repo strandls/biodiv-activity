@@ -117,7 +117,8 @@ public class MailServiceImpl implements MailService {
 					model.put(COMMENT_POST.WHAT_POSTED_ICON.getAction(),
 							observation.getIconURl() == null ? "" : observation.getIconURl());
 					model.put(COMMENT_POST.WHAT_POSTED_USERGROUPS.getAction(), groups);
-					model.put(POST_TO_GROUP.WHERE_POSTED.getAction(), Arrays.asList(userGroup));
+					model.put(POST_TO_GROUP.WHERE_WEB_ADDRESS.getAction(), userGroup.getWebAddress());
+					model.put(POST_TO_GROUP.WHERE_USER_GROUPNAME.getAction(), userGroup.getUserGroupName());
 					model.put(POST_TO_GROUP.SUBMIT_TYPE.getAction(),
 							activity.getActivityType().toLowerCase().contains("post") ? "post": "");
 					data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
