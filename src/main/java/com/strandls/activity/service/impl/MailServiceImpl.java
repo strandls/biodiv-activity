@@ -66,10 +66,17 @@ public class MailServiceImpl implements MailService {
 			ObservationMailData observation = observationService.getObservationMailData(String.valueOf(objectId));
 			List<UserGroupIbp> groups = userGroupService.getObservationUserGroup(String.valueOf(objectId));
 			User who = userService.getUser(String.valueOf(userId));
-			RecoVoteActivity reco = mapper.readValue(activity.getActivityDescription(), RecoVoteActivity.class);
-			String name = (reco.getScientificName() != null || !reco.getScientificName().isEmpty()) ? 
-					reco.getScientificName()
-					: reco.getCommonName();
+			RecoVoteActivity reco = null;
+			String name = "";
+			try {
+				reco = mapper.readValue(activity.getActivityDescription(), RecoVoteActivity.class);
+				
+				name = (reco.getScientificName() != null || !reco.getScientificName().isEmpty()) ? 
+						reco.getScientificName()
+						: reco.getCommonName();
+			} catch (Exception ex) {
+				
+			}
 			for (Recipients recipient : recipientsList) {
 				if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
 					User follower = userService.getUser(String.valueOf(recipient.getId()));
@@ -89,9 +96,11 @@ public class MailServiceImpl implements MailService {
 					model.put(COMMENT_POST.WHO_POSTED_ID.getAction(), who.getId());
 					model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), who.getIcon() == null ? "": who.getIcon());
 					model.put(COMMENT_POST.WHO_POSTED_NAME.getAction(), who.getName());
-					model.put(SUGGEST_MAIL.GIVEN_NAME_ID.getAction(), reco.getSpeciesId() == null ? 0 : reco.getSpeciesId());
-					model.put(SUGGEST_MAIL.GIVEN_NAME_NAME.getAction(), name);
-					model.put(SUGGEST_MAIL.GIVEN_NAME_IS_SCIENTIFIC_NAME.getAction(), reco.getScientificName() != null || !reco.getScientificName().isEmpty());
+					if (reco != null) {
+						model.put(SUGGEST_MAIL.GIVEN_NAME_ID.getAction(), reco.getSpeciesId() == null ? 0 : reco.getSpeciesId());
+						model.put(SUGGEST_MAIL.GIVEN_NAME_NAME.getAction(), name);
+						model.put(SUGGEST_MAIL.GIVEN_NAME_IS_SCIENTIFIC_NAME.getAction(), reco.getScientificName() != null || !reco.getScientificName().isEmpty());						
+					}
 					model.put(COMMENT_POST.WHAT_POSTED_ID.getAction(), observation.getObservationId());
 					model.put(COMMENT_POST.WHAT_POSTED_NAME.getAction(), observation.getCommonName());
 					model.put(COMMENT_POST.WHAT_POSTED_LOCATION.getAction(), observation.getLocation());
