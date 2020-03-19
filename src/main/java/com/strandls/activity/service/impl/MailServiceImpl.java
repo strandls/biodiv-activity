@@ -1,5 +1,6 @@
 package com.strandls.activity.service.impl;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import com.strandls.activity.RabbitMqConnection;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.RecoVoteActivity;
+import com.strandls.activity.pojo.UserGroupActivity;
 import com.strandls.activity.service.MailService;
 import com.strandls.mail_utility.model.EnumModel.COMMENT_POST;
 import com.strandls.mail_utility.model.EnumModel.FIELDS;
@@ -67,6 +69,7 @@ public class MailServiceImpl implements MailService {
 			List<UserGroupIbp> groups = userGroupService.getObservationUserGroup(String.valueOf(objectId));
 			User who = userService.getUser(String.valueOf(userId));
 			RecoVoteActivity reco = null;
+			UserGroupActivity userGroup = null;
 			String name = "";
 			try {
 				reco = mapper.readValue(activity.getActivityDescription(), RecoVoteActivity.class);
@@ -74,8 +77,11 @@ public class MailServiceImpl implements MailService {
 				name = (reco.getScientificName() != null || !reco.getScientificName().isEmpty())
 						? reco.getScientificName()
 						: reco.getCommonName();
+						
+				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);						
 			} catch (Exception ex) {
-
+				ex.printStackTrace();
+				logger.error(ex.getMessage());				
 			}
 			for (Recipients recipient : recipientsList) {
 				if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
@@ -111,7 +117,7 @@ public class MailServiceImpl implements MailService {
 					model.put(COMMENT_POST.WHAT_POSTED_ICON.getAction(),
 							observation.getIconURl() == null ? "" : observation.getIconURl());
 					model.put(COMMENT_POST.WHAT_POSTED_USERGROUPS.getAction(), groups);
-					model.put(POST_TO_GROUP.WHERE_POSTED.getAction(), groups);
+					model.put(POST_TO_GROUP.WHERE_POSTED.getAction(), Arrays.asList(userGroup));
 					model.put(POST_TO_GROUP.SUBMIT_TYPE.getAction(),
 							activity.getActivityType().toLowerCase().contains("post") ? "post": "");
 					data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
