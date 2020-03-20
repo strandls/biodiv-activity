@@ -101,11 +101,14 @@ public class MailServiceImpl implements MailService {
 					if (comment != null) {
 						model.put(COMMENT_POST.COMMENT_BODY.getAction(), comment.getBody());
 					}
+					if (type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED) {
+						model.put(COMMENT_POST.COMMENT_BODY.getAction(), activity.getActivityDescription());
+					}
 					model.put(COMMENT_POST.FOLLOWER_ID.getAction(), follower.getId());
 					model.put(COMMENT_POST.FOLLOWER_NAME.getAction(), follower.getName());
 					model.put(COMMENT_POST.WHO_POSTED_ID.getAction(), who.getId());
 					model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), who.getIcon() == null ? "" : who.getIcon());
-					model.put(COMMENT_POST.WHO_POSTED_NAME.getAction(), who.getId() == userId ? "You" : who.getName());
+					model.put(COMMENT_POST.WHO_POSTED_NAME.getAction(), recipient.getId() == userId ? "You" : who.getName());
 					if (reco != null) {
 						model.put(SUGGEST_MAIL.GIVEN_NAME_ID.getAction(),
 								reco.getSpeciesId() == null ? 0 : reco.getSpeciesId());

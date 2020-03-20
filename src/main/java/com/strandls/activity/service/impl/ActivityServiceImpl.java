@@ -34,6 +34,7 @@ import com.strandls.activity.pojo.ShowActivityIbp;
 import com.strandls.activity.pojo.UserGroupActivity;
 import com.strandls.activity.service.ActivityService;
 import com.strandls.activity.service.MailService;
+import com.strandls.activity.util.ActivityUtil;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 import com.strandls.observation.ApiException;
 import com.strandls.observation.controller.ObservationServiceApi;
@@ -165,7 +166,6 @@ public class ActivityServiceImpl implements ActivityService {
 	public Activity logActivities(Long userId, ActivityLoggingData loggingData) {
 		Activity activity = null;
 		MAIL_TYPE type = null;
-		String subject = "";
 		if (nullActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, null, null, null, null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
@@ -177,19 +177,16 @@ public class ActivityServiceImpl implements ActivityService {
 					ActivityEnums.recommendationVote.getValue(), null, loggingData.getActivityType(), userId,
 					new Date(), new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
-			type = MAIL_TYPE.SUGGEST_MAIL;
 		} else if (userGroupActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 					ActivityEnums.userGroup.getValue(), null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
-			type = MAIL_TYPE.POST_TO_GROUP;
 		} else if (traitsActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 					ActivityEnums.facts.getValue(), null, loggingData.getActivityType(), userId, new Date(), new Date(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), loggingData.getRootObjectId(),
 					ActivityEnums.observation.getValue(), true, null);
-			type = MAIL_TYPE.FACT_UPDATED;
 		} else if (flagActivityList.contains(loggingData.getActivityType())) {
 			MyJson myJson = new MyJson();
 			String[] description = loggingData.getActivityDescription().split(":");
@@ -206,19 +203,17 @@ public class ActivityServiceImpl implements ActivityService {
 					ActivityEnums.observation.getValue(), null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
-
-			subject = loggingData.getActivityType();
 		} else if (commentActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 					ActivityEnums.comments.getValue(), null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getSubRootObjectId(), ActivityEnums.comments.getValue(), true, null);
-			type = MAIL_TYPE.COMMENT_POST;
 		}
 
 		Activity result = activityDao.save(activity);
 		try {
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
+			type = ActivityUtil.getMailType(activity.getActivityType(), userGroupActivityList.contains(activity.getActivityType()));
 			if (type != MAIL_TYPE.COMMENT_POST) {
 				mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
 						loggingData);
