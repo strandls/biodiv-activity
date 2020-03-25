@@ -14,6 +14,7 @@ public class CommentLoggingData {
 	private String rootHolderType;
 	private Long subRootHolderId;
 	private String subRootHolderType;
+	private MailData mailData;
 
 	/**
 	 * 
@@ -28,15 +29,17 @@ public class CommentLoggingData {
 	 * @param rootHolderType
 	 * @param subRootHolderId
 	 * @param subRootHolderType
+	 * @param mailData
 	 */
 	public CommentLoggingData(String body, Long rootHolderId, String rootHolderType, Long subRootHolderId,
-			String subRootHolderType) {
+			String subRootHolderType, MailData mailData) {
 		super();
 		this.body = body;
 		this.rootHolderId = rootHolderId;
 		this.rootHolderType = rootHolderType;
 		this.subRootHolderId = subRootHolderId;
 		this.subRootHolderType = subRootHolderType;
+		this.mailData = mailData;
 	}
 
 	public String getBody() {
@@ -77,6 +80,14 @@ public class CommentLoggingData {
 
 	public void setSubRootHolderType(String subRootHolderType) {
 		this.subRootHolderType = subRootHolderType;
+	}
+
+	public MailData getMailData() {
+		return mailData;
+	}
+
+	public void setMailData(MailData mailData) {
+		this.mailData = mailData;
 	}
 
 }

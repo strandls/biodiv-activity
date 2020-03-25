@@ -20,6 +20,4 @@ public interface ActivityService {
 
 	public Activity addComment(Long userId, CommentLoggingData commentData);
 
-	public void migrateData();
-
 }

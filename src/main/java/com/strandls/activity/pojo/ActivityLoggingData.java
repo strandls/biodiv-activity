@@ -15,6 +15,7 @@ public class ActivityLoggingData {
 	private String rootObjectType;
 	private Long activityId;
 	private String activityType;
+	private MailData mailData;
 
 	/**
 	 * 
@@ -30,9 +31,10 @@ public class ActivityLoggingData {
 	 * @param rootObjectType
 	 * @param activityId
 	 * @param activityType
+	 * @param mailData
 	 */
 	public ActivityLoggingData(String activityDescription, Long rootObjectId, Long subRootObjectId,
-			String rootObjectType, Long activityId, String activityType) {
+			String rootObjectType, Long activityId, String activityType, MailData mailData) {
 		super();
 		this.activityDescription = activityDescription;
 		this.rootObjectId = rootObjectId;
@@ -40,6 +42,7 @@ public class ActivityLoggingData {
 		this.rootObjectType = rootObjectType;
 		this.activityId = activityId;
 		this.activityType = activityType;
+		this.mailData = mailData;
 	}
 
 	public String getActivityDescription() {
@@ -88,6 +91,14 @@ public class ActivityLoggingData {
 
 	public void setActivityType(String activityType) {
 		this.activityType = activityType;
+	}
+
+	public MailData getMailData() {
+		return mailData;
+	}
+
+	public void setMailData(MailData mailData) {
+		this.mailData = mailData;
 	}
 
 }

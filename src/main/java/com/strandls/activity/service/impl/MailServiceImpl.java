@@ -16,6 +16,8 @@ import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.RecoVoteActivity;
 import com.strandls.activity.pojo.UserGroupActivity;
+import com.strandls.activity.pojo.UserGroupMailData;
+import com.strandls.activity.pojo.observationMailData;
 import com.strandls.activity.service.MailService;
 import com.strandls.mail_utility.model.EnumModel.COMMENT_POST;
 import com.strandls.mail_utility.model.EnumModel.FIELDS;
@@ -24,13 +26,9 @@ import com.strandls.mail_utility.model.EnumModel.POST_TO_GROUP;
 import com.strandls.mail_utility.model.EnumModel.SUGGEST_MAIL;
 import com.strandls.mail_utility.producer.RabbitMQProducer;
 import com.strandls.mail_utility.util.JsonUtil;
-import com.strandls.observation.controller.ObservationServiceApi;
-import com.strandls.observation.pojo.ObservationMailData;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.Recipients;
 import com.strandls.user.pojo.User;
-import com.strandls.userGroup.controller.UserGroupSerivceApi;
-import com.strandls.userGroup.pojo.UserGroupIbp;
 
 public class MailServiceImpl implements MailService {
 
@@ -42,13 +40,7 @@ public class MailServiceImpl implements MailService {
 	private Channel channel;
 
 	@Inject
-	private ObservationServiceApi observationService;
-
-	@Inject
 	private UserServiceApi userService;
-
-	@Inject
-	private UserGroupSerivceApi userGroupService;
 
 	@Inject
 	private ObjectMapper mapper;
@@ -64,8 +56,8 @@ public class MailServiceImpl implements MailService {
 			ActivityLoggingData activity) {
 		try {
 			List<Recipients> recipientsList = userService.getRecipients(objectType, objectId);
-			ObservationMailData observation = observationService.getObservationMailData(String.valueOf(objectId));
-			List<UserGroupIbp> groups = userGroupService.getObservationUserGroup(String.valueOf(objectId));
+			observationMailData observation = activity.getMailData().getObservationData();
+			List<UserGroupMailData> groups = activity.getMailData().getUserGroupData();
 			User who = userService.getUser(String.valueOf(userId));
 			RecoVoteActivity reco = null;
 			UserGroupActivity userGroup = null;

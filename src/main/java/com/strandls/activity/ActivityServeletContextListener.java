@@ -37,12 +37,7 @@ import com.strandls.activity.controller.ActivityControllerModule;
 import com.strandls.activity.dao.ActivityDaoModule;
 import com.strandls.activity.service.impl.ActivityServiceModule;
 import com.strandls.authentication_utility.filter.FilterModule;
-import com.strandls.observation.controller.ObservationServiceApi;
-import com.strandls.observation.controller.RecommendationServicesApi;
-import com.strandls.traits.controller.TraitsServiceApi;
 import com.strandls.user.controller.UserServiceApi;
-import com.strandls.userGroup.controller.UserGroupSerivceApi;
-import com.strandls.utility.controller.UtilityServiceApi;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
@@ -93,12 +88,7 @@ public class ActivityServeletContextListener extends GuiceServletContextListener
 				bind(ObjectMapper.class).toInstance(om);
 
 				bind(SessionFactory.class).toInstance(sessionFactory);
-				bind(UserGroupSerivceApi.class).in(Scopes.SINGLETON);
-				bind(TraitsServiceApi.class).in(Scopes.SINGLETON);
-				bind(UtilityServiceApi.class).in(Scopes.SINGLETON);
 				bind(UserServiceApi.class).in(Scopes.SINGLETON);
-				bind(RecommendationServicesApi.class).in(Scopes.SINGLETON);
-				bind(ObservationServiceApi.class).in(Scopes.SINGLETON);
 				serve("/api/*").with(GuiceContainer.class, props);
 				filter("/*").through(SwaggerFilter.class);
 			}

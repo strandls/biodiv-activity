@@ -27,7 +27,6 @@ import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.service.ActivityService;
-import com.strandls.activity.service.impl.MigrateThread;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 
@@ -48,9 +47,6 @@ public class ActivityController {
 
 	@Inject
 	private ActivityService service;
-
-	@Inject
-	private MigrateThread migrationThread;
 
 	@GET
 	@Path(ApiConstants.PING)
@@ -129,24 +125,6 @@ public class ActivityController {
 				return Response.status(Status.OK).entity(result).build();
 			}
 			return Response.status(Status.NOT_ACCEPTABLE).entity("Blank Comment Not allowed").build();
-		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
-		}
-	}
-
-	@POST
-	@Path(ApiConstants.MIGRATE)
-	@Produces(MediaType.TEXT_PLAIN)
-
-	@ApiOperation(value = "Migrate the Old activity data", notes = "Starts a Thread that Migrate the data", response = String.class)
-	@ApiResponses(value = {
-			@ApiResponse(code = 400, message = "Unable to start the process", response = String.class) })
-
-	public Response migrateData() {
-		try {
-			Thread thread = new Thread(migrationThread);
-			thread.start();
-			return Response.status(Status.OK).entity("Migration Started").build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}

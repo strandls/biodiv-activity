@@ -16,12 +16,7 @@ import javax.ws.rs.core.HttpHeaders;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.strandls.observation.controller.ObservationServiceApi;
-import com.strandls.observation.controller.RecommendationServicesApi;
-import com.strandls.traits.controller.TraitsServiceApi;
 import com.strandls.user.controller.UserServiceApi;
-import com.strandls.userGroup.controller.UserGroupSerivceApi;
-import com.strandls.utility.controller.UtilityServiceApi;
 
 /**
  * @author Abhishek Rudra
@@ -30,23 +25,10 @@ import com.strandls.utility.controller.UtilityServiceApi;
 @Singleton
 public class SwaggerFilter implements Filter {
 
-	@Inject
-	public TraitsServiceApi traitService;
-
-	@Inject
-	public UserGroupSerivceApi userGroupService;
-
-	@Inject
-	public UtilityServiceApi utilityService;
 
 	@Inject
 	public UserServiceApi userService;
 
-	@Inject
-	private RecommendationServicesApi recoService;
-	
-	@Inject
-	private ObservationServiceApi observationService;
 
 	/**
 	 * 
@@ -73,12 +55,7 @@ public class SwaggerFilter implements Filter {
 
 		String header = request2.getHeader(HttpHeaders.AUTHORIZATION);
 
-		traitService.getApiClient().addDefaultHeader(HttpHeaders.AUTHORIZATION, header);
-		userGroupService.getApiClient().addDefaultHeader(HttpHeaders.AUTHORIZATION, header);
-		utilityService.getApiClient().addDefaultHeader(HttpHeaders.AUTHORIZATION, header);
 		userService.getApiClient().addDefaultHeader(HttpHeaders.AUTHORIZATION, header);
-		recoService.getApiClient().addDefaultHeader(HttpHeaders.AUTHORIZATION, header);
-		observationService.getApiClient().addDefaultHeader(HttpHeaders.AUTHORIZATION, header);
 
 		chain.doFilter(request2, response);
 	}
