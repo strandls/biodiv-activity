@@ -29,6 +29,7 @@ import com.strandls.activity.pojo.ShowActivityIbp;
 import com.strandls.activity.pojo.UserGroupActivity;
 import com.strandls.activity.service.ActivityService;
 import com.strandls.activity.service.MailService;
+import com.strandls.activity.service.NotificationService;
 import com.strandls.activity.util.ActivityUtil;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 import com.strandls.user.controller.UserServiceApi;
@@ -53,6 +54,9 @@ public class ActivityServiceImpl implements ActivityService {
 
 	@Inject
 	private UserServiceApi userService;
+
+	@Inject
+	private NotificationService notificationSevice;
 
 	@Inject
 	private MailService mailService;
@@ -140,7 +144,7 @@ public class ActivityServiceImpl implements ActivityService {
 			activity = new Activity(null, 0L, null, null, null, null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
-			
+
 		} else if (recommendationActivityList.contains(loggingData.getActivityType())) {
 
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
@@ -183,10 +187,13 @@ public class ActivityServiceImpl implements ActivityService {
 		Activity result = activityDao.save(activity);
 		try {
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
-			type = ActivityUtil.getMailType(activity.getActivityType(), userGroupActivityList.contains(activity.getActivityType()));
+			type = ActivityUtil.getMailType(activity.getActivityType(),
+					userGroupActivityList.contains(activity.getActivityType()));
 			if (type != null && type != MAIL_TYPE.COMMENT_POST) {
 				mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
 						loggingData);
+				notificationSevice.sendNotification(result.getRootHolderType(), result.getRootHolderId(),
+						"India Biodiversity Portal", activity.getActivityType());
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -224,14 +231,16 @@ public class ActivityServiceImpl implements ActivityService {
 		ActivityLoggingData activity = null;
 		if (result.getCommentHolderId().equals(result.getRootHolderId())) {
 			activity = new ActivityLoggingData(null, result.getRootHolderId(), result.getId(),
-					result.getRootHolderType(), result.getId(), "Added a comment",commentData.getMailData());
+					result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
 		} else {
 			activity = new ActivityLoggingData(null, result.getRootHolderId(), result.getCommentHolderId(),
-					result.getRootHolderType(), result.getId(), "Added a comment",commentData.getMailData());
+					result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
 		}
 		Activity activityResult = logActivities(userId, activity);
 		mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(),
 				activityResult.getRootHolderId(), userId, commentData, activity);
+		notificationSevice.sendNotification(result.getRootHolderType(), result.getRootHolderId(),
+				"India Biodiversity Portal", activity.getActivityType());
 
 		return activityResult;
 	}
