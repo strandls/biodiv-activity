@@ -37,6 +37,7 @@ import com.strandls.activity.controller.ActivityControllerModule;
 import com.strandls.activity.dao.ActivityDaoModule;
 import com.strandls.activity.service.impl.ActivityServiceModule;
 import com.strandls.authentication_utility.filter.FilterModule;
+import com.strandls.mail_utility.producer.RabbitMQProducer;
 import com.strandls.user.controller.UserServiceApi;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
@@ -83,6 +84,8 @@ public class ActivityServeletContextListener extends GuiceServletContextListener
 				}
 
 				bind(Channel.class).toInstance(channel);
+				RabbitMQProducer producer = new RabbitMQProducer(channel);
+				bind(RabbitMQProducer.class).toInstance(producer);
 
 				ObjectMapper om = new ObjectMapper();
 				bind(ObjectMapper.class).toInstance(om);

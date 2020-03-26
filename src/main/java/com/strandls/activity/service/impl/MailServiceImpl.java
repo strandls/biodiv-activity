@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import com.rabbitmq.client.Channel;
 import com.strandls.activity.RabbitMqConnection;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.CommentLoggingData;
@@ -37,9 +36,9 @@ public class MailServiceImpl implements MailService {
 	private static final Logger logger = LoggerFactory.getLogger(MailServiceImpl.class);
 	private String siteName = "";
 	private String serverUrl = "";
-
+	
 	@Inject
-	private Channel channel;
+	private RabbitMQProducer producer;
 
 	@Inject
 	private UserServiceApi userService;
@@ -129,7 +128,6 @@ public class MailServiceImpl implements MailService {
 					model.put(POST_TO_GROUP.SUBMIT_TYPE.getAction(),
 							activity.getActivityType().toLowerCase().contains("post") ? "post" : "");
 					data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
-					RabbitMQProducer producer = new RabbitMQProducer(channel);
 					producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 							JsonUtil.mapToJSON(data));
 				}
