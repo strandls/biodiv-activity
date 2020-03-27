@@ -3,11 +3,7 @@
  */
 package com.strandls.activity.pojo;
 
-import com.strandls.observation.pojo.RecoIbp;
-import com.strandls.traits.pojo.FactValuePair;
 import com.strandls.user.pojo.UserIbp;
-import com.strandls.userGroup.pojo.UserGroupIbp;
-import com.strandls.utility.pojo.FlagIbp;
 
 /**
  * @author Abhishek Rudra
@@ -16,35 +12,36 @@ import com.strandls.utility.pojo.FlagIbp;
 public class ShowActivityIbp {
 
 	private ActivityIbp activityIbp;
-	private RecoIbp recoVote;
 	private CommentsIbp commentsIbp;
 	private CommentsIbp reply;
+	private UserGroupActivity userGroup;
+	private RecoVoteActivity recoVote;
 	private UserIbp userIbp;
-	private FactValuePair factValuePair;
-	private UserGroupIbp userGroupIbp;
-	private FlagIbp flagIbp;
+
+	/**
+	 * 
+	 */
+	public ShowActivityIbp() {
+		super();
+	}
 
 	/**
 	 * @param activityIbp
-	 * @param recoVote
 	 * @param commentsIbp
 	 * @param reply
+	 * @param userGroup
+	 * @param recoVote
 	 * @param userIbp
-	 * @param factValuePair
-	 * @param userGroupIbp
-	 * @param flagIbp
 	 */
-	public ShowActivityIbp(ActivityIbp activityIbp, RecoIbp recoVote, CommentsIbp commentsIbp, CommentsIbp reply,
-			UserIbp userIbp, FactValuePair factValuePair, UserGroupIbp userGroupIbp, FlagIbp flagIbp) {
+	public ShowActivityIbp(ActivityIbp activityIbp, CommentsIbp commentsIbp, CommentsIbp reply,
+			UserGroupActivity userGroup, RecoVoteActivity recoVote, UserIbp userIbp) {
 		super();
 		this.activityIbp = activityIbp;
-		this.recoVote = recoVote;
 		this.commentsIbp = commentsIbp;
 		this.reply = reply;
+		this.userGroup = userGroup;
+		this.recoVote = recoVote;
 		this.userIbp = userIbp;
-		this.factValuePair = factValuePair;
-		this.userGroupIbp = userGroupIbp;
-		this.flagIbp = flagIbp;
 	}
 
 	public ActivityIbp getActivityIbp() {
@@ -53,14 +50,6 @@ public class ShowActivityIbp {
 
 	public void setActivityIbp(ActivityIbp activityIbp) {
 		this.activityIbp = activityIbp;
-	}
-
-	public RecoIbp getRecoVote() {
-		return recoVote;
-	}
-
-	public void setRecoVote(RecoIbp recoVote) {
-		this.recoVote = recoVote;
 	}
 
 	public CommentsIbp getCommentsIbp() {
@@ -79,36 +68,28 @@ public class ShowActivityIbp {
 		this.reply = reply;
 	}
 
+	public UserGroupActivity getUserGroup() {
+		return userGroup;
+	}
+
+	public void setUserGroup(UserGroupActivity userGroup) {
+		this.userGroup = userGroup;
+	}
+
+	public RecoVoteActivity getRecoVote() {
+		return recoVote;
+	}
+
+	public void setRecoVote(RecoVoteActivity recoVote) {
+		this.recoVote = recoVote;
+	}
+
 	public UserIbp getUserIbp() {
 		return userIbp;
 	}
 
 	public void setUserIbp(UserIbp userIbp) {
 		this.userIbp = userIbp;
-	}
-
-	public FactValuePair getFactValuePair() {
-		return factValuePair;
-	}
-
-	public void setFactValuePair(FactValuePair factValuePair) {
-		this.factValuePair = factValuePair;
-	}
-
-	public UserGroupIbp getUserGroupIbp() {
-		return userGroupIbp;
-	}
-
-	public void setUserGroupIbp(UserGroupIbp userGroupIbp) {
-		this.userGroupIbp = userGroupIbp;
-	}
-
-	public FlagIbp getFlagIbp() {
-		return flagIbp;
-	}
-
-	public void setFlagIbp(FlagIbp flagIbp) {
-		this.flagIbp = flagIbp;
 	}
 
 }

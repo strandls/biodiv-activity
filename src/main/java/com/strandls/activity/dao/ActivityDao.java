@@ -46,15 +46,17 @@ public class ActivityDao extends AbstractDAO<Activity, Long> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Activity> findByObjectId(String objectType, Long id) {
+	public List<Activity> findByObjectId(String objectType, Long id, String offset, String limit) {
 
-		String qry = "from Activity a where a.rootHolderType = :objectType and a.rootHolderId = :id order by a.lastUpdated";
+		String qry = "from Activity a where a.rootHolderType = :objectType and a.rootHolderId = :id order by a.lastUpdated desc";
 		Session session = sessionFactory.openSession();
 		List<Activity> result = null;
 		try {
 			Query<Activity> query = session.createQuery(qry);
 			query.setParameter("objectType", objectType);
 			query.setParameter("id", id);
+			query.setFirstResult(Integer.parseInt(offset));
+			query.setMaxResults(Integer.parseInt(limit));
 			result = query.getResultList();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -81,6 +83,26 @@ public class ActivityDao extends AbstractDAO<Activity, Long> {
 			session.close();
 		}
 		return commentCount;
+	}
+
+	public List<Activity> findAllObservationActivity(String type, Integer startPosition) {
+		Session session = sessionFactory.openSession();
+		String qry = "from Activity where rootHolderType = :type order by id";
+		List<Activity> result = null;
+		try {
+			@SuppressWarnings("unchecked")
+			Query<Activity> query = session.createQuery(qry);
+			query.setFirstResult(startPosition);
+			query.setMaxResults(50000);
+			query.setParameter("type", type);
+			result = query.getResultList();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+
+		return result;
 	}
 
 }

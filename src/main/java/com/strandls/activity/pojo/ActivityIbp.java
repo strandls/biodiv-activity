@@ -3,7 +3,7 @@
  */
 package com.strandls.activity.pojo;
 
-import java.sql.Date;
+import java.util.Date;
 
 /**
  * @author Abhishek Rudra

@@ -3,10 +3,10 @@
  */
 package com.strandls.activity.service;
 
-import java.util.List;
-
+import com.strandls.activity.pojo.Activity;
+import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.ActivityResult;
-import com.strandls.activity.pojo.ShowActivity;
+import com.strandls.activity.pojo.CommentLoggingData;
 
 /**
  * @author Abhishek Rudra
@@ -14,7 +14,10 @@ import com.strandls.activity.pojo.ShowActivity;
  */
 public interface ActivityService {
 
-	public List<ShowActivity> fetchActivity(String objectType,Long objectId);
-	
-	public ActivityResult fetchActivityIbp(String objectType,Long objectId);
+	public ActivityResult fetchActivityIbp(String objectType, Long objectId, String offset, String limit);
+
+	public Activity logActivities(Long userId, ActivityLoggingData loggingData);
+
+	public Activity addComment(Long userId, CommentLoggingData commentData);
+
 }
