@@ -85,8 +85,7 @@ public class MailServiceImpl implements MailService {
 					User follower = userService.getUser(String.valueOf(recipient.getId()));
 					Map<String, Object> data = new HashMap<String, Object>();
 					data.put(FIELDS.TYPE.getAction(), type.getAction());
-					data.put(FIELDS.TO.getAction(),
-							PropertyFileUtil.fetchProperty("config.properties", "temp_email").split(","));
+					data.put(FIELDS.TO.getAction(), new String[] { recipient.getEmail() });
 					Map<String, Object> model = new HashMap<String, Object>();
 					model.put(COMMENT_POST.TYPE.getAction(), type.getAction());
 					model.put(COMMENT_POST.SITENAME.getAction(), siteName);
