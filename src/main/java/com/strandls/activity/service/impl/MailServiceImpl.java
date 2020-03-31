@@ -85,7 +85,7 @@ public class MailServiceImpl implements MailService {
 			for (Recipients recipient : recipientsList) {
 				if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
 					User follower = userService.getUser(String.valueOf(recipient.getId()));
-					data = prepareMailData(type, follower, who, reco, userGroup, activity, comment, name, observation,
+					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name, observation,
 							groups);
 					producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 							JsonUtil.mapToJSON(data));
@@ -101,12 +101,12 @@ public class MailServiceImpl implements MailService {
 		}
 	}
 
-	private Map<String, Object> prepareMailData(MAIL_TYPE type, User follower, User who, RecoVoteActivity reco,
+	private Map<String, Object> prepareMailData(MAIL_TYPE type, Recipients recipient, User follower, User who, RecoVoteActivity reco,
 			UserGroupActivity userGroup, ActivityLoggingData activity, CommentLoggingData comment, String name,
 			observationMailData observation, List<UserGroupMailData> groups) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), type.getAction());
-		data.put(FIELDS.TO.getAction(), PropertyFileUtil.fetchProperty("config.properties", "temp_email").split(","));
+		data.put(FIELDS.TO.getAction(), new String[] { recipient.getEmail() });
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put(COMMENT_POST.TYPE.getAction(), type.getAction());
 		model.put(COMMENT_POST.SITENAME.getAction(), siteName);
