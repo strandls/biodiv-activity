@@ -85,8 +85,8 @@ public class MailServiceImpl implements MailService {
 			for (Recipients recipient : recipientsList) {
 				if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
 					User follower = userService.getUser(String.valueOf(recipient.getId()));
-					data = prepareMailData(type, follower, who, reco, userGroup, activity, comment,
-							name, observation, groups); 
+					data = prepareMailData(type, follower, who, reco, userGroup, activity, comment, name, observation,
+							groups);
 					producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 							JsonUtil.mapToJSON(data));
 				}
@@ -94,17 +94,16 @@ public class MailServiceImpl implements MailService {
 			String admins = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc");
 			data.put(FIELDS.TO.getAction(), admins.split(","));
 			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-					JsonUtil.mapToJSON(data));			
+					JsonUtil.mapToJSON(data));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			logger.error(ex.getMessage());
 		}
 	}
 
-	private Map<String, Object> prepareMailData(
-			MAIL_TYPE type, User follower, User who, RecoVoteActivity reco, UserGroupActivity userGroup, 
-			ActivityLoggingData activity, CommentLoggingData comment, String name, observationMailData observation,
-			List<UserGroupMailData> groups) {
+	private Map<String, Object> prepareMailData(MAIL_TYPE type, User follower, User who, RecoVoteActivity reco,
+			UserGroupActivity userGroup, ActivityLoggingData activity, CommentLoggingData comment, String name,
+			observationMailData observation, List<UserGroupMailData> groups) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), type.getAction());
 		data.put(FIELDS.TO.getAction(), PropertyFileUtil.fetchProperty("config.properties", "temp_email").split(","));
@@ -116,7 +115,10 @@ public class MailServiceImpl implements MailService {
 		if (comment != null) {
 			model.put(COMMENT_POST.COMMENT_BODY.getAction(), comment.getBody());
 		}
-		if (type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED) {
+
+		if (type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED
+				|| type == MAIL_TYPE.FEATURED_POST || type == MAIL_TYPE.FEATURED_POST_IBP
+				|| type == MAIL_TYPE.OBSERVATION_FLAGGED) {
 			model.put(COMMENT_POST.COMMENT_BODY.getAction(), activity.getActivityDescription());
 		}
 		model.put(COMMENT_POST.FOLLOWER_ID.getAction(), follower.getId());
