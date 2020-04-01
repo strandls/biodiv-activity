@@ -16,6 +16,7 @@ import com.strandls.activity.RabbitMqConnection;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.RecoVoteActivity;
+import com.strandls.activity.pojo.TaggedUser;
 import com.strandls.activity.pojo.UserGroupActivity;
 import com.strandls.activity.pojo.UserGroupMailData;
 import com.strandls.activity.pojo.observationMailData;
@@ -60,7 +61,7 @@ public class MailServiceImpl implements MailService {
 
 	@Override
 	public void sendMail(MAIL_TYPE type, String objectType, Long objectId, Long userId, CommentLoggingData comment,
-			ActivityLoggingData activity) {
+			ActivityLoggingData activity, List<TaggedUser> taggedUsers) {
 		try {
 			List<Recipients> recipientsList = userService.getRecipients(objectType, objectId);
 			observationMailData observation = activity.getMailData().getObservationData();
@@ -82,13 +83,27 @@ public class MailServiceImpl implements MailService {
 			}
 			Map<String, Object> data = null;
 			// Send to followers
-			for (Recipients recipient : recipientsList) {
-				if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
-					User follower = userService.getUser(String.valueOf(recipient.getId()));
-					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
-							observation, groups);
-					producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-							JsonUtil.mapToJSON(data));
+			if (taggedUsers != null && taggedUsers.size() > 0) {
+				for (TaggedUser user : taggedUsers) {
+					User follower = userService.getUser(String.valueOf(user.getId()));
+					if (follower.getSendNotification() != null && follower.getSendNotification()) {
+						Recipients recipient = new Recipients();
+						recipient.setId(follower.getId());
+						data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
+								observation, groups);
+						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+								JsonUtil.mapToJSON(data));
+					}
+				}
+			} else {
+				for (Recipients recipient : recipientsList) {
+					if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
+						User follower = userService.getUser(String.valueOf(recipient.getId()));
+						data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
+								observation, groups);
+						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+								JsonUtil.mapToJSON(data));
+					}
 				}
 			}
 			String admins = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc");

@@ -5,22 +5,31 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.strandls.activity.pojo.TaggedUser;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 
 public class ActivityUtil {
+	
+	private final static Logger logger = LoggerFactory.getLogger(ActivityUtil.class);
 
 	public static List<TaggedUser> getTaggedUsers(String comment) {
 		List<TaggedUser> users = new ArrayList<TaggedUser>();
 		String regex = "@\\[\\w+\\]\\(\\d+\\)";
 		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(comment);
-		while (matcher.find()) {
-			String match = matcher.group();
-			TaggedUser user = new TaggedUser();
-			user.setName(match.substring(match.indexOf("[") + 1, match.lastIndexOf("]")));
-			user.setId(Long.parseLong(match.substring(match.indexOf("(") + 1, match.lastIndexOf(")"))));
-			users.add(user);
+		try {
+			Matcher matcher = pattern.matcher(comment);
+			while (matcher.find()) {
+				String match = matcher.group();
+				TaggedUser user = new TaggedUser();
+				user.setName(match.substring(match.indexOf("[") + 1, match.lastIndexOf("]")));
+				user.setId(Long.parseLong(match.substring(match.indexOf("(") + 1, match.lastIndexOf(")"))));
+				users.add(user);
+			}			
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());
 		}
 		return users;
 	}
