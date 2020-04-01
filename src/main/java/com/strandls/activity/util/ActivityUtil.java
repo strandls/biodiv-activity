@@ -13,11 +13,11 @@ import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 
 public class ActivityUtil {
 	
-	private final static Logger logger = LoggerFactory.getLogger(ActivityUtil.class);
+//	private final static Logger logger = LoggerFactory.getLogger(ActivityUtil.class);
 
 	public static List<TaggedUser> getTaggedUsers(String comment) {
 		List<TaggedUser> users = new ArrayList<TaggedUser>();
-		String regex = "@\\[\\w+\\]\\(\\d+\\)";
+		String regex = "@\\[\\w+( \\w+)*\\]\\(\\d+\\)";
 		Pattern pattern = Pattern.compile(regex);
 		try {
 			Matcher matcher = pattern.matcher(comment);
@@ -29,7 +29,7 @@ public class ActivityUtil {
 				users.add(user);
 			}			
 		} catch (Exception ex) {
-			logger.error(ex.getMessage());
+//			logger.error(ex.getMessage());
 		}
 		return users;
 	}
@@ -91,6 +91,10 @@ public class ActivityUtil {
 			break;
 		}
 		return type;
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(getTaggedUsers("@[Sethuraman Srinivasan](824141)"));
 	}
 
 }
