@@ -20,4 +20,6 @@ public interface ActivityService {
 
 	public Activity addComment(Long userId, CommentLoggingData commentData);
 
+	public String sendObvCreateMail(Long userid, ActivityLoggingData loggingData);
+
 }

@@ -187,20 +187,37 @@ public class ActivityServiceImpl implements ActivityService {
 		Activity result = activityDao.save(activity);
 		try {
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
-			type = ActivityUtil.getMailType(activity.getActivityType(),
-					userGroupActivityList.contains(activity.getActivityType()));
-			if (type != null && type != MAIL_TYPE.COMMENT_POST) {
-				mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
-						loggingData);
-				notificationSevice.sendNotification(result.getRootHolderType(), result.getRootHolderId(),
-						"India Biodiversity Portal", activity.getActivityType());
+			if (loggingData.getMailData() != null) {
+				type = ActivityUtil.getMailType(activity.getActivityType(),
+						userGroupActivityList.contains(activity.getActivityType()));
+				if (type != null && type != MAIL_TYPE.COMMENT_POST) {
+					mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
+							loggingData);
+					notificationSevice.sendNotification(result.getRootHolderType(), result.getRootHolderId(),
+							"India Biodiversity Portal", activity.getActivityType());
+				}
 			}
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 
 		return result;
 
+	}
+
+	@Override
+	public String sendObvCreateMail(Long userId, ActivityLoggingData loggingData) {
+		try {
+			mailService.sendMail(MAIL_TYPE.OBSERVATION_ADDED, ActivityEnums.observation.getValue(),
+					loggingData.getRootObjectId(), userId, null, loggingData);
+			notificationSevice.sendNotification(ActivityEnums.observation.getValue(), loggingData.getRootObjectId(),
+					"India Biodiversity Portal", "Observation created");
+			return "Mail Sent";
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return "Mail not sent";
 	}
 
 	@Override

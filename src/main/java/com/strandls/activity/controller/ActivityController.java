@@ -105,6 +105,30 @@ public class ActivityController {
 	}
 
 	@POST
+	@Path(ApiConstants.SENDMAIL)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+
+	@ValidateUser
+	
+	@ApiOperation(value = "sents out cumulative mail and notification for observation create", notes = "sents out mail and notification for observationCreate",response = String.class)
+	@ApiResponses(value = {@ApiResponse(code = 400,message = "unable to send the mail",response = String.class)})
+
+	public Response sendMailCreateObservation(@Context HttpServletRequest request,
+			@ApiParam(name = "activityLogging") ActivityLoggingData activityLogging) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			String result = service.sendObvCreateMail(userId, activityLogging);
+			return Response.status(Status.OK).entity(result).build();
+			
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+
+	}
+
+	@POST
 	@Path(ApiConstants.ADD + ApiConstants.COMMENT)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
