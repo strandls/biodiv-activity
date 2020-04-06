@@ -74,7 +74,7 @@ public class MailServiceImpl implements MailService {
 					|| activity.getActivityType().equalsIgnoreCase("suggestion removed")) {
 				reco = mapper.readValue(activity.getActivityDescription(), RecoVoteActivity.class);
 
-				name = (reco.getScientificName() != null || !reco.getScientificName().isEmpty())
+				name = (reco.getScientificName() != null && !reco.getScientificName().isEmpty())
 						? reco.getScientificName()
 						: reco.getCommonName();
 			}
