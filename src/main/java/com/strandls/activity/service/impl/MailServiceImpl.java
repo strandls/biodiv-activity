@@ -76,7 +76,9 @@ public class MailServiceImpl implements MailService {
 
 				name = (reco.getScientificName() != null && !reco.getScientificName().isEmpty())
 						? reco.getScientificName()
-						: reco.getCommonName();
+						: (reco.getCommonName() != null && !reco.getCommonName().isEmpty())
+							? reco.getCommonName()
+									: "";
 			}
 			if (userGroupActivityList.contains(activity.getActivityType())) {
 				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
@@ -146,11 +148,15 @@ public class MailServiceImpl implements MailService {
 			model.put(SUGGEST_MAIL.GIVEN_NAME_ID.getAction(), reco.getSpeciesId() == null ? 0 : reco.getSpeciesId());
 			model.put(SUGGEST_MAIL.GIVEN_NAME_NAME.getAction(), name);
 			model.put(SUGGEST_MAIL.GIVEN_NAME_IS_SCIENTIFIC_NAME.getAction(),
-					reco.getScientificName() != null || !reco.getScientificName().isEmpty());
+					reco.getScientificName() != null && !reco.getScientificName().isEmpty());
 		}
 		model.put(COMMENT_POST.WHAT_POSTED_ID.getAction(), observation.getObservationId());
 		model.put(COMMENT_POST.WHAT_POSTED_NAME.getAction(),
-				observation.getCommonName() == null ? "" : observation.getCommonName());
+				(observation.getScientificName() != null && !observation.getScientificName().isEmpty())
+				? observation.getScientificName()
+				: (observation.getCommonName() != null && !observation.getCommonName().isEmpty())
+					? observation.getCommonName()
+							: "");
 		model.put(COMMENT_POST.WHAT_POSTED_LOCATION.getAction(),
 				observation.getLocation() == null ? "" : observation.getLocation());
 		model.put(COMMENT_POST.WHAT_POSTED_OBSERVED_ON.getAction(), observation.getObservedOn());
