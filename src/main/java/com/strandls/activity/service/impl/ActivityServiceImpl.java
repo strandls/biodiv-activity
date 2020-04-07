@@ -261,7 +261,7 @@ public class ActivityServiceImpl implements ActivityService {
 					activityResult.getRootHolderId(), userId, commentData, activity, taggedUsers);			
 		}
 		mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(),
-				activityResult.getRootHolderId(), userId, commentData, activity, null);
+				activityResult.getRootHolderId(), userId, commentData, activity, taggedUsers);
 		notificationSevice.sendNotification(result.getRootHolderType(), result.getRootHolderId(),
 				"India Biodiversity Portal", activity.getActivityType());
 
