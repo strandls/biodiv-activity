@@ -36,13 +36,18 @@ public class ActivityUtil {
 		return users;
 	}
 	
-	public static String linkTaggedUsersProfile(List<TaggedUser> users, String commentBody) {
+	public static String linkTaggedUsersProfile(List<TaggedUser> users, String commentBody, boolean withURL) {
 		String comment = commentBody;
 		try {
 			for (TaggedUser user: users) {
-				String taggedUserLink = "<a href=\"*$URL$*\" target=\"_blank\">*$NAME$*</a>";
-				String url = PropertyFileUtil.fetchProperty("config.properties", "portalAddress") + "/user/show/" + user.getId();
-				taggedUserLink = taggedUserLink.replace("*$URL$*", url);
+				String taggedUserLink = null;
+				if (withURL) {
+					taggedUserLink = "<a href=\"*$URL$*\" target=\"_blank\">*$NAME$*</a>";
+					String url = PropertyFileUtil.fetchProperty("config.properties", "portalAddress") + "/user/show/" + user.getId();
+					taggedUserLink = taggedUserLink.replace("*$URL$*", url);
+				} else {
+					taggedUserLink = "*$NAME$*";					
+				}
 				taggedUserLink = taggedUserLink.replace("*$NAME$*", user.getName());
 				comment = comment.replaceFirst(TAGGED_USER_REGEX, taggedUserLink);
 			}

@@ -29,7 +29,6 @@ import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 import com.strandls.mail_utility.model.EnumModel.POST_TO_GROUP;
 import com.strandls.mail_utility.model.EnumModel.SUGGEST_MAIL;
 import com.strandls.mail_utility.producer.RabbitMQProducer;
-import com.strandls.mail_utility.util.AppUtil;
 import com.strandls.mail_utility.util.JsonUtil;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.Recipients;
@@ -87,9 +86,8 @@ public class MailServiceImpl implements MailService {
 				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
 			}
 			Map<String, Object> data = null;
-			// Send to followers
 			if (taggedUsers != null && taggedUsers.size() > 0) {
-				String modComment = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody());
+				String modComment = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody(), true);
 				for (TaggedUser user : taggedUsers) {
 					User follower = userService.getUser(String.valueOf(user.getId()));
 					if (follower.getSendNotification() != null && follower.getSendNotification()) {
@@ -102,11 +100,12 @@ public class MailServiceImpl implements MailService {
 					}
 				}
 			} else {
+				String unlinkTaggedUsers = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody(), false);
 				for (Recipients recipient : recipientsList) {
 					if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
 						User follower = userService.getUser(String.valueOf(recipient.getId()));
 						data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
-								observation, groups, null);
+								observation, groups, unlinkTaggedUsers);
 						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 								JsonUtil.mapToJSON(data));
 					}
@@ -134,7 +133,7 @@ public class MailServiceImpl implements MailService {
 		model.put(COMMENT_POST.SERVER_URL.getAction(), serverUrl);
 		model.put(SUGGEST_MAIL.RECO_VOTE.getAction(), name);
 		if (comment != null) {
-			model.put(COMMENT_POST.COMMENT_BODY.getAction(), modifiedComment != null ? modifiedComment : comment.getBody());
+			model.put(COMMENT_POST.COMMENT_BODY.getAction(), modifiedComment);
 		}
 
 		if (type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED
