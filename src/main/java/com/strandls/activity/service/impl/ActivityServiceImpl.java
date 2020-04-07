@@ -61,7 +61,8 @@ public class ActivityServiceImpl implements ActivityService {
 	@Inject
 	private MailService mailService;
 
-	List<String> nullActivityList = new ArrayList<String>(Arrays.asList("Observation created", "Observation updated"));
+	List<String> nullActivityList = new ArrayList<String>(
+			Arrays.asList("Observation created", "Observation updated", "Rated media resource"));
 
 	List<String> recommendationActivityList = new ArrayList<String>(
 			Arrays.asList("obv unlocked", "Suggested species name", "obv locked", "Agreed on species name"));
