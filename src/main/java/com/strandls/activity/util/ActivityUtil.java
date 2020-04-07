@@ -9,16 +9,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.strandls.activity.pojo.TaggedUser;
+import com.strandls.activity.service.impl.PropertyFileUtil;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 
 public class ActivityUtil {
 	
-//	private final static Logger logger = LoggerFactory.getLogger(ActivityUtil.class);
+	private final static Logger logger = LoggerFactory.getLogger(ActivityUtil.class);
+	
+	private static final String TAGGED_USER_REGEX = "@\\[\\w+( \\w+)*\\]\\(\\d+\\)";
 
 	public static List<TaggedUser> getTaggedUsers(String comment) {
 		List<TaggedUser> users = new ArrayList<TaggedUser>();
-		String regex = "@\\[\\w+( \\w+)*\\]\\(\\d+\\)";
-		Pattern pattern = Pattern.compile(regex);
+		Pattern pattern = Pattern.compile(TAGGED_USER_REGEX);
 		try {
 			Matcher matcher = pattern.matcher(comment);
 			while (matcher.find()) {
@@ -29,9 +31,25 @@ public class ActivityUtil {
 				users.add(user);
 			}			
 		} catch (Exception ex) {
-//			logger.error(ex.getMessage());
+			logger.error(ex.getMessage());
 		}
 		return users;
+	}
+	
+	public static String linkTaggedUsersProfile(List<TaggedUser> users, String commentBody) {
+		String comment = commentBody;
+		try {
+			for (TaggedUser user: users) {
+				String taggedUserLink = "<a href=\"*$URL$*\" target=\"_blank\">*$NAME$*</a>";
+				String url = PropertyFileUtil.fetchProperty("config.properties", "serverUrl") + "/user/show/" + user.getId();
+				taggedUserLink = taggedUserLink.replace("*$URL$*", url);
+				taggedUserLink = taggedUserLink.replace("*$NAME$*", user.getName());
+				comment = comment.replaceFirst(TAGGED_USER_REGEX, taggedUserLink);
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());
+		}
+		return comment;
 	}
 
 	public static MAIL_TYPE getMailType(String activity, boolean isUserGroup) {
@@ -91,10 +109,6 @@ public class ActivityUtil {
 			break;
 		}
 		return type;
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(getTaggedUsers("@[Sethuraman Srinivasan](824141)"));
 	}
 
 }

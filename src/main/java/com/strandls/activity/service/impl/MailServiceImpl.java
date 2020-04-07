@@ -22,12 +22,14 @@ import com.strandls.activity.pojo.UserGroupActivity;
 import com.strandls.activity.pojo.UserGroupMailData;
 import com.strandls.activity.pojo.observationMailData;
 import com.strandls.activity.service.MailService;
+import com.strandls.activity.util.ActivityUtil;
 import com.strandls.mail_utility.model.EnumModel.COMMENT_POST;
 import com.strandls.mail_utility.model.EnumModel.FIELDS;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 import com.strandls.mail_utility.model.EnumModel.POST_TO_GROUP;
 import com.strandls.mail_utility.model.EnumModel.SUGGEST_MAIL;
 import com.strandls.mail_utility.producer.RabbitMQProducer;
+import com.strandls.mail_utility.util.AppUtil;
 import com.strandls.mail_utility.util.JsonUtil;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.Recipients;
@@ -87,13 +89,14 @@ public class MailServiceImpl implements MailService {
 			Map<String, Object> data = null;
 			// Send to followers
 			if (taggedUsers != null && taggedUsers.size() > 0) {
+				String modComment = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody());
 				for (TaggedUser user : taggedUsers) {
 					User follower = userService.getUser(String.valueOf(user.getId()));
 					if (follower.getSendNotification() != null && follower.getSendNotification()) {
 						Recipients recipient = new Recipients();
 						recipient.setId(follower.getId());
 						data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
-								observation, groups);
+								observation, groups, modComment);
 						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 								JsonUtil.mapToJSON(data));
 					}
@@ -103,7 +106,7 @@ public class MailServiceImpl implements MailService {
 					if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
 						User follower = userService.getUser(String.valueOf(recipient.getId()));
 						data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
-								observation, groups);
+								observation, groups, null);
 						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 								JsonUtil.mapToJSON(data));
 					}
@@ -121,7 +124,7 @@ public class MailServiceImpl implements MailService {
 
 	private Map<String, Object> prepareMailData(MAIL_TYPE type, Recipients recipient, User follower, User who,
 			RecoVoteActivity reco, UserGroupActivity userGroup, ActivityLoggingData activity,
-			CommentLoggingData comment, String name, observationMailData observation, List<UserGroupMailData> groups) {
+			CommentLoggingData comment, String name, observationMailData observation, List<UserGroupMailData> groups, String modifiedComment) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), type.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { recipient.getEmail() });
@@ -131,7 +134,7 @@ public class MailServiceImpl implements MailService {
 		model.put(COMMENT_POST.SERVER_URL.getAction(), serverUrl);
 		model.put(SUGGEST_MAIL.RECO_VOTE.getAction(), name);
 		if (comment != null) {
-			model.put(COMMENT_POST.COMMENT_BODY.getAction(), comment.getBody());
+			model.put(COMMENT_POST.COMMENT_BODY.getAction(), modifiedComment != null ? modifiedComment : comment.getBody());
 		}
 
 		if (type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED
