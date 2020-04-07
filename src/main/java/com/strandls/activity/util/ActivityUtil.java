@@ -41,7 +41,7 @@ public class ActivityUtil {
 		try {
 			for (TaggedUser user: users) {
 				String taggedUserLink = "<a href=\"*$URL$*\" target=\"_blank\">*$NAME$*</a>";
-				String url = PropertyFileUtil.fetchProperty("config.properties", "serverUrl") + "/user/show/" + user.getId();
+				String url = PropertyFileUtil.fetchProperty("config.properties", "portalAddress") + "/user/show/" + user.getId();
 				taggedUserLink = taggedUserLink.replace("*$URL$*", url);
 				taggedUserLink = taggedUserLink.replace("*$NAME$*", user.getName());
 				comment = comment.replaceFirst(TAGGED_USER_REGEX, taggedUserLink);
