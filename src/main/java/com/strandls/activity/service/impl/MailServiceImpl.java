@@ -86,19 +86,18 @@ public class MailServiceImpl implements MailService {
 				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
 			}
 			Map<String, Object> data = null;
-			String unlinkTaggedUsers = "";
+			String linkTaggedUsers = "";
 			if (type == MAIL_TYPE.COMMENT_POST && taggedUsers != null) {
-				unlinkTaggedUsers = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody(), false);
+				linkTaggedUsers = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody(), true);
 			}
 			if (type == MAIL_TYPE.TAGGED_MAIL && taggedUsers != null && taggedUsers.size() > 0) {
-				String modComment = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody(), true);
 				for (TaggedUser user : taggedUsers) {
 					User follower = userService.getUser(String.valueOf(user.getId()));
 					if (follower.getSendNotification() != null && follower.getSendNotification()) {
 						Recipients recipient = new Recipients();
 						recipient.setId(follower.getId());
 						data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
-								observation, groups, modComment);
+								observation, groups, linkTaggedUsers);
 						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 								JsonUtil.mapToJSON(data));
 					}
@@ -108,7 +107,7 @@ public class MailServiceImpl implements MailService {
 					if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
 						User follower = userService.getUser(String.valueOf(recipient.getId()));
 						data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
-								observation, groups, unlinkTaggedUsers);
+								observation, groups, linkTaggedUsers);
 						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 								JsonUtil.mapToJSON(data));
 					}
