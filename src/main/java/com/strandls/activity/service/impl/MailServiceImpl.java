@@ -1,5 +1,6 @@
 package com.strandls.activity.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -159,7 +160,8 @@ public class MailServiceImpl implements MailService {
 							: "");
 		model.put(COMMENT_POST.WHAT_POSTED_LOCATION.getAction(),
 				observation.getLocation() == null ? "" : observation.getLocation());
-		model.put(COMMENT_POST.WHAT_POSTED_OBSERVED_ON.getAction(), observation.getObservedOn());
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");		
+		model.put(COMMENT_POST.WHAT_POSTED_OBSERVED_ON.getAction(), sdf.format(observation.getObservedOn()));
 		String image = observation.getIconURl() == null ? "" : observation.getIconURl();
 		if (!image.isEmpty()) {
 			int dot = image.lastIndexOf(".");
