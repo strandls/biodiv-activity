@@ -86,6 +86,7 @@ public class MailServiceImpl implements MailService {
 				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
 			}
 			Map<String, Object> data = null;
+			String unlinkTaggedUsers = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody(), false);
 			if (taggedUsers != null && taggedUsers.size() > 0) {
 				String modComment = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody(), true);
 				for (TaggedUser user : taggedUsers) {
@@ -100,7 +101,6 @@ public class MailServiceImpl implements MailService {
 					}
 				}
 			} else {
-				String unlinkTaggedUsers = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody(), false);
 				for (Recipients recipient : recipientsList) {
 					if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
 						User follower = userService.getUser(String.valueOf(recipient.getId()));
