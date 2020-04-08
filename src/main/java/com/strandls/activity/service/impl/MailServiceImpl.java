@@ -84,6 +84,19 @@ public class MailServiceImpl implements MailService {
 			}
 			if (userGroupActivityList.contains(activity.getActivityType())) {
 				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
+				System.out.println("***** UserGroup ***** " + userGroup.getUserGroupName());
+			}
+
+			if (groups != null && groups.size() > 0) {
+				for (UserGroupMailData mailData: groups) {
+					System.out.println("***** GroupFromAPI *****" + mailData.getName());
+				}
+			} else if (groups != null && groups.size() == 0) {
+				for (UserGroupMailData mailData: groups) {
+					System.out.println("***** GroupFromAPI *****" + mailData.getName());
+				}				
+			} else {
+				System.out.println("***** Groups Empty *****");
 			}
 			
 			Map<String, Object> data = null;
