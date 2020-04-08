@@ -146,7 +146,7 @@ public class MailServiceImpl implements MailService {
 		model.put(COMMENT_POST.FOLLOWER_ID.getAction(), follower.getId());
 		model.put(COMMENT_POST.FOLLOWER_NAME.getAction(), follower.getName());
 		model.put(COMMENT_POST.WHO_POSTED_ID.getAction(), who.getId());
-		model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), who.getIcon() == null ? "" : who.getIcon());
+		model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), who.getIcon() == null ? "user_large.png" : who.getIcon());
 		model.put(COMMENT_POST.WHO_POSTED_NAME.getAction(),
 				recipient.getId().equals(who.getId()) ? "You" : who.getName());
 		if (reco != null) {
