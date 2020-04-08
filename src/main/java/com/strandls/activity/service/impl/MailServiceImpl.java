@@ -159,7 +159,7 @@ public class MailServiceImpl implements MailService {
 		model.put(COMMENT_POST.FOLLOWER_ID.getAction(), follower.getId());
 		model.put(COMMENT_POST.FOLLOWER_NAME.getAction(), follower.getName());
 		model.put(COMMENT_POST.WHO_POSTED_ID.getAction(), who.getId());
-		String icon = (who.getIcon() != null || !who.getIcon().isEmpty()) ? who.getIcon() : "";
+		String icon = who.getIcon() != null ? who.getIcon() : "";
 		if (!icon.isEmpty()) {
 			int dot = icon.lastIndexOf(".");
 			String fileName = icon.substring(0, dot);
