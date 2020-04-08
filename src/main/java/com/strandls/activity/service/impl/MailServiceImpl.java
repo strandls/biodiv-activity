@@ -80,11 +80,12 @@ public class MailServiceImpl implements MailService {
 						? reco.getScientificName()
 						: (reco.getCommonName() != null && !reco.getCommonName().isEmpty())
 							? reco.getCommonName()
-									: "";
+									: (reco.getGivenName() != null && !reco.getGivenName().isEmpty()) ? reco.getGivenName() : "";
 			}
 			if (userGroupActivityList.contains(activity.getActivityType())) {
 				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
 			}
+			
 			Map<String, Object> data = null;
 			String linkTaggedUsers = "";
 			if (type == MAIL_TYPE.COMMENT_POST && taggedUsers != null) {
@@ -146,7 +147,14 @@ public class MailServiceImpl implements MailService {
 		model.put(COMMENT_POST.FOLLOWER_ID.getAction(), follower.getId());
 		model.put(COMMENT_POST.FOLLOWER_NAME.getAction(), follower.getName());
 		model.put(COMMENT_POST.WHO_POSTED_ID.getAction(), who.getId());
-		model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), who.getIcon() == null ? "user_large.png" : who.getIcon());
+		String icon = who.getIcon() != null ? who.getIcon() : "";
+		if (!icon.isEmpty()) {
+			int dot = icon.lastIndexOf(".");
+			String fileName = icon.substring(0, dot);
+			String extension = icon.substring(dot);
+			icon = String.join("_gall_th", fileName, extension);
+		}
+		model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), icon.isEmpty() ? "/user_large.png" : icon);
 		model.put(COMMENT_POST.WHO_POSTED_NAME.getAction(),
 				recipient.getId().equals(who.getId()) ? "You" : who.getName());
 		if (reco != null) {
