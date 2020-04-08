@@ -26,6 +26,7 @@ import com.strandls.activity.pojo.CommentsIbp;
 import com.strandls.activity.pojo.MyJson;
 import com.strandls.activity.pojo.RecoVoteActivity;
 import com.strandls.activity.pojo.ShowActivityIbp;
+import com.strandls.activity.pojo.TaggedUser;
 import com.strandls.activity.pojo.UserGroupActivity;
 import com.strandls.activity.service.ActivityService;
 import com.strandls.activity.service.MailService;
@@ -192,7 +193,7 @@ public class ActivityServiceImpl implements ActivityService {
 						userGroupActivityList.contains(activity.getActivityType()));
 				if (type != null && type != MAIL_TYPE.COMMENT_POST) {
 					mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
-							loggingData);
+							loggingData, null);
 					notificationSevice.sendNotification(result.getRootHolderType(), result.getRootHolderId(),
 							"India Biodiversity Portal", activity.getActivityType());
 				}
@@ -210,7 +211,7 @@ public class ActivityServiceImpl implements ActivityService {
 	public String sendObvCreateMail(Long userId, ActivityLoggingData loggingData) {
 		try {
 			mailService.sendMail(MAIL_TYPE.OBSERVATION_ADDED, ActivityEnums.observation.getValue(),
-					loggingData.getRootObjectId(), userId, null, loggingData);
+					loggingData.getRootObjectId(), userId, null, loggingData, null);
 			notificationSevice.sendNotification(ActivityEnums.observation.getValue(), loggingData.getRootObjectId(),
 					"India Biodiversity Portal", "Observation created");
 			return "Mail Sent";
@@ -254,8 +255,13 @@ public class ActivityServiceImpl implements ActivityService {
 					result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
 		}
 		Activity activityResult = logActivities(userId, activity);
+		List<TaggedUser> taggedUsers = ActivityUtil.getTaggedUsers(commentData.getBody());
+		if (taggedUsers.size() > 0) {
+			mailService.sendMail(MAIL_TYPE.TAGGED_MAIL, activityResult.getRootHolderType(),
+					activityResult.getRootHolderId(), userId, commentData, activity, taggedUsers);			
+		}
 		mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(),
-				activityResult.getRootHolderId(), userId, commentData, activity);
+				activityResult.getRootHolderId(), userId, commentData, activity, taggedUsers);
 		notificationSevice.sendNotification(result.getRootHolderType(), result.getRootHolderId(),
 				"India Biodiversity Portal", activity.getActivityType());
 

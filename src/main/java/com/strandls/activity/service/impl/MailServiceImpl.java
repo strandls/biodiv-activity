@@ -1,5 +1,6 @@
 package com.strandls.activity.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,10 +17,12 @@ import com.strandls.activity.RabbitMqConnection;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.RecoVoteActivity;
+import com.strandls.activity.pojo.TaggedUser;
 import com.strandls.activity.pojo.UserGroupActivity;
 import com.strandls.activity.pojo.UserGroupMailData;
 import com.strandls.activity.pojo.observationMailData;
 import com.strandls.activity.service.MailService;
+import com.strandls.activity.util.ActivityUtil;
 import com.strandls.mail_utility.model.EnumModel.COMMENT_POST;
 import com.strandls.mail_utility.model.EnumModel.FIELDS;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
@@ -60,7 +63,7 @@ public class MailServiceImpl implements MailService {
 
 	@Override
 	public void sendMail(MAIL_TYPE type, String objectType, Long objectId, Long userId, CommentLoggingData comment,
-			ActivityLoggingData activity) {
+			ActivityLoggingData activity, List<TaggedUser> taggedUsers) {
 		try {
 			List<Recipients> recipientsList = userService.getRecipients(objectType, objectId);
 			observationMailData observation = activity.getMailData().getObservationData();
@@ -73,22 +76,41 @@ public class MailServiceImpl implements MailService {
 					|| activity.getActivityType().equalsIgnoreCase("suggestion removed")) {
 				reco = mapper.readValue(activity.getActivityDescription(), RecoVoteActivity.class);
 
-				name = (reco.getScientificName() != null || !reco.getScientificName().isEmpty())
+				name = (reco.getScientificName() != null && !reco.getScientificName().isEmpty())
 						? reco.getScientificName()
-						: reco.getCommonName();
+						: (reco.getCommonName() != null && !reco.getCommonName().isEmpty())
+							? reco.getCommonName()
+									: "";
 			}
 			if (userGroupActivityList.contains(activity.getActivityType())) {
 				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
 			}
 			Map<String, Object> data = null;
-			// Send to followers
-			for (Recipients recipient : recipientsList) {
-				if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
-					User follower = userService.getUser(String.valueOf(recipient.getId()));
-					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
-							observation, groups);
-					producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-							JsonUtil.mapToJSON(data));
+			String linkTaggedUsers = "";
+			if (type == MAIL_TYPE.COMMENT_POST && taggedUsers != null) {
+				linkTaggedUsers = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody(), true);
+			}
+			if (type == MAIL_TYPE.TAGGED_MAIL && taggedUsers != null && taggedUsers.size() > 0) {
+				for (TaggedUser user : taggedUsers) {
+					User follower = userService.getUser(String.valueOf(user.getId()));
+					if (follower.getSendNotification() != null && follower.getSendNotification()) {
+						Recipients recipient = new Recipients();
+						recipient.setId(follower.getId());
+						data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
+								observation, groups, linkTaggedUsers);
+						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+								JsonUtil.mapToJSON(data));
+					}
+				}
+			} else {
+				for (Recipients recipient : recipientsList) {
+					if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
+						User follower = userService.getUser(String.valueOf(recipient.getId()));
+						data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
+								observation, groups, linkTaggedUsers);
+						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+								JsonUtil.mapToJSON(data));
+					}
 				}
 			}
 			String admins = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc");
@@ -103,7 +125,7 @@ public class MailServiceImpl implements MailService {
 
 	private Map<String, Object> prepareMailData(MAIL_TYPE type, Recipients recipient, User follower, User who,
 			RecoVoteActivity reco, UserGroupActivity userGroup, ActivityLoggingData activity,
-			CommentLoggingData comment, String name, observationMailData observation, List<UserGroupMailData> groups) {
+			CommentLoggingData comment, String name, observationMailData observation, List<UserGroupMailData> groups, String modifiedComment) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), type.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { recipient.getEmail() });
@@ -113,7 +135,7 @@ public class MailServiceImpl implements MailService {
 		model.put(COMMENT_POST.SERVER_URL.getAction(), serverUrl);
 		model.put(SUGGEST_MAIL.RECO_VOTE.getAction(), name);
 		if (comment != null) {
-			model.put(COMMENT_POST.COMMENT_BODY.getAction(), comment.getBody());
+			model.put(COMMENT_POST.COMMENT_BODY.getAction(), modifiedComment);
 		}
 
 		if (type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED
@@ -131,14 +153,19 @@ public class MailServiceImpl implements MailService {
 			model.put(SUGGEST_MAIL.GIVEN_NAME_ID.getAction(), reco.getSpeciesId() == null ? 0 : reco.getSpeciesId());
 			model.put(SUGGEST_MAIL.GIVEN_NAME_NAME.getAction(), name);
 			model.put(SUGGEST_MAIL.GIVEN_NAME_IS_SCIENTIFIC_NAME.getAction(),
-					reco.getScientificName() != null || !reco.getScientificName().isEmpty());
+					reco.getScientificName() != null && !reco.getScientificName().isEmpty());
 		}
 		model.put(COMMENT_POST.WHAT_POSTED_ID.getAction(), observation.getObservationId());
 		model.put(COMMENT_POST.WHAT_POSTED_NAME.getAction(),
-				observation.getCommonName() == null ? "" : observation.getCommonName());
+				(observation.getScientificName() != null && !observation.getScientificName().isEmpty())
+				? observation.getScientificName()
+				: (observation.getCommonName() != null && !observation.getCommonName().isEmpty())
+					? observation.getCommonName()
+							: "");
 		model.put(COMMENT_POST.WHAT_POSTED_LOCATION.getAction(),
 				observation.getLocation() == null ? "" : observation.getLocation());
-		model.put(COMMENT_POST.WHAT_POSTED_OBSERVED_ON.getAction(), observation.getObservedOn());
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");		
+		model.put(COMMENT_POST.WHAT_POSTED_OBSERVED_ON.getAction(), sdf.format(observation.getObservedOn()));
 		String image = observation.getIconURl() == null ? "" : observation.getIconURl();
 		if (!image.isEmpty()) {
 			int dot = image.lastIndexOf(".");
