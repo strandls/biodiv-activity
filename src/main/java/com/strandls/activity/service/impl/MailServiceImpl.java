@@ -182,7 +182,7 @@ public class MailServiceImpl implements MailService {
 				? observation.getScientificName()
 				: (observation.getCommonName() != null && !observation.getCommonName().isEmpty())
 					? observation.getCommonName()
-							: "");
+							: "Help Identify");
 		model.put(COMMENT_POST.WHAT_POSTED_LOCATION.getAction(),
 				observation.getLocation() == null ? "" : observation.getLocation());
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");		
