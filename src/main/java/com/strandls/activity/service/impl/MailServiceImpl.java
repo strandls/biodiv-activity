@@ -84,18 +84,6 @@ public class MailServiceImpl implements MailService {
 			}
 			if (userGroupActivityList.contains(activity.getActivityType())) {
 				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
-				System.out.println("***** UserGroup ***** " + userGroup.getUserGroupName());
-			}
-			if (groups != null && groups.size() > 0) {
-				for (UserGroupMailData mailData: groups) {
-					System.out.println("***** GroupFromAPI *****" + mailData.getName());
-				}
-			} else if (groups != null && groups.size() == 0) {
-				for (UserGroupMailData mailData: groups) {
-					System.out.println("***** GroupFromAPI *****" + mailData.getName());
-				}				
-			} else {
-				System.out.println("***** Groups Empty *****");
 			}
 			
 			Map<String, Object> data = null;
@@ -166,7 +154,7 @@ public class MailServiceImpl implements MailService {
 			String extension = icon.substring(dot);
 			icon = String.join("_gall_th", fileName, extension);
 		}
-		model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), icon.isEmpty() ? "user_large.png" : icon);
+		model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), icon.isEmpty() ? "/user_large.png" : icon);
 		model.put(COMMENT_POST.WHO_POSTED_NAME.getAction(),
 				recipient.getId().equals(who.getId()) ? "You" : who.getName());
 		if (reco != null) {
