@@ -5,24 +5,56 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.strandls.activity.pojo.TaggedUser;
+import com.strandls.activity.service.impl.PropertyFileUtil;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 
 public class ActivityUtil {
+	
+	private final static Logger logger = LoggerFactory.getLogger(ActivityUtil.class);
+	
+	private static final String TAGGED_USER_REGEX = "@\\[(.*?)\\]\\(\\d+\\)";
 
 	public static List<TaggedUser> getTaggedUsers(String comment) {
 		List<TaggedUser> users = new ArrayList<TaggedUser>();
-		String regex = "@\\[\\w+\\]\\(\\d+\\)";
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(comment);
-		while (matcher.find()) {
-			String match = matcher.group();
-			TaggedUser user = new TaggedUser();
-			user.setName(match.substring(match.indexOf("[") + 1, match.lastIndexOf("]")));
-			user.setId(Long.parseLong(match.substring(match.indexOf("(") + 1, match.lastIndexOf(")"))));
-			users.add(user);
+		Pattern pattern = Pattern.compile(TAGGED_USER_REGEX);
+		try {
+			Matcher matcher = pattern.matcher(comment);
+			while (matcher.find()) {
+				String match = matcher.group();
+				TaggedUser user = new TaggedUser();
+				user.setName(match.substring(match.indexOf("[") + 1, match.lastIndexOf("]")));
+				user.setId(Long.parseLong(match.substring(match.indexOf("(") + 1, match.lastIndexOf(")"))));
+				users.add(user);
+			}			
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());
 		}
 		return users;
+	}
+	
+	public static String linkTaggedUsersProfile(List<TaggedUser> users, String commentBody, boolean withURL) {
+		String comment = commentBody;
+		try {
+			for (TaggedUser user: users) {
+				String taggedUserLink = null;
+				if (withURL) {
+					taggedUserLink = "<a href=\"*$URL$*\" target=\"_blank\">*$NAME$*</a>";
+					String url = PropertyFileUtil.fetchProperty("config.properties", "portalAddress") + "/user/show/" + user.getId();
+					taggedUserLink = taggedUserLink.replace("*$URL$*", url);
+				} else {
+					taggedUserLink = "*$NAME$*";					
+				}
+				taggedUserLink = taggedUserLink.replace("*$NAME$*", user.getName());
+				comment = comment.replaceFirst(TAGGED_USER_REGEX, taggedUserLink);
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());
+		}
+		return comment;
 	}
 
 	public static MAIL_TYPE getMailType(String activity, boolean isUserGroup) {
