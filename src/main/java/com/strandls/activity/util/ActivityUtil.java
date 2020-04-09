@@ -16,7 +16,7 @@ public class ActivityUtil {
 	
 	private final static Logger logger = LoggerFactory.getLogger(ActivityUtil.class);
 	
-	private static final String TAGGED_USER_REGEX = "@\\[\\w+( \\w+)*\\]\\(\\d+\\)";
+	private static final String TAGGED_USER_REGEX = "@\\[(.*?)\\]\\(\\d+\\)";
 
 	public static List<TaggedUser> getTaggedUsers(String comment) {
 		List<TaggedUser> users = new ArrayList<TaggedUser>();
