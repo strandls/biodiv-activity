@@ -94,21 +94,21 @@ public class MailServiceImpl implements MailService {
 			if (type == MAIL_TYPE.TAGGED_MAIL && taggedUsers != null && taggedUsers.size() > 0) {
 				for (TaggedUser user : taggedUsers) {
 					User follower = userService.getUser(String.valueOf(user.getId()));
+					Recipients recipient = new Recipients();
+					recipient.setId(follower.getId());
+					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
+							observation, groups, linkTaggedUsers);
 					if (follower.getSendNotification() != null && follower.getSendNotification()) {
-						Recipients recipient = new Recipients();
-						recipient.setId(follower.getId());
-						data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
-								observation, groups, linkTaggedUsers);
 						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 								JsonUtil.mapToJSON(data));
 					}
 				}
 			} else {
 				for (Recipients recipient : recipientsList) {
+					User follower = userService.getUser(String.valueOf(recipient.getId()));
+					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
+							observation, groups, linkTaggedUsers);
 					if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
-						User follower = userService.getUser(String.valueOf(recipient.getId()));
-						data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
-								observation, groups, linkTaggedUsers);
 						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 								JsonUtil.mapToJSON(data));
 					}
