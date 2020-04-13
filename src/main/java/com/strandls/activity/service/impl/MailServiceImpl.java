@@ -78,27 +78,32 @@ public class MailServiceImpl implements MailService {
 
 				name = (reco.getScientificName() != null && !reco.getScientificName().isEmpty())
 						? reco.getScientificName()
-						: (reco.getCommonName() != null && !reco.getCommonName().isEmpty())
-							? reco.getCommonName()
-									: (reco.getGivenName() != null && !reco.getGivenName().isEmpty()) ? reco.getGivenName() : "";
+						: (reco.getCommonName() != null && !reco.getCommonName().isEmpty()) ? reco.getCommonName()
+								: (reco.getGivenName() != null && !reco.getGivenName().isEmpty()) ? reco.getGivenName()
+										: "";
 			}
 			if (userGroupActivityList.contains(activity.getActivityType())) {
 				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
 				System.out.println("***** UserGroup ***** " + userGroup.getUserGroupName());
 			}
 
+			System.out.println("INSIDE MAIL SERVICE IMPL");
+
+			if(groups==null) {
+				System.out.println();
+				System.out.println("NULL IN GROUPS");
+				System.out.println();
+			}
+			
+			
 			if (groups != null && groups.size() > 0) {
-				for (UserGroupMailData mailData: groups) {
-					System.out.println("***** GroupFromAPI *****" + mailData.getName());
+				for (UserGroupMailData mailData : groups) {
+					System.out.println("***** GroupFromAPI *****" + mailData.toString());
 				}
-			} else if (groups != null && groups.size() == 0) {
-				for (UserGroupMailData mailData: groups) {
-					System.out.println("***** GroupFromAPI *****" + mailData.getName());
-				}				
 			} else {
 				System.out.println("***** Groups Empty *****");
 			}
-			
+
 			Map<String, Object> data = null;
 			String linkTaggedUsers = "";
 			if (type == MAIL_TYPE.COMMENT_POST && taggedUsers != null) {
@@ -139,7 +144,8 @@ public class MailServiceImpl implements MailService {
 
 	private Map<String, Object> prepareMailData(MAIL_TYPE type, Recipients recipient, User follower, User who,
 			RecoVoteActivity reco, UserGroupActivity userGroup, ActivityLoggingData activity,
-			CommentLoggingData comment, String name, observationMailData observation, List<UserGroupMailData> groups, String modifiedComment) {
+			CommentLoggingData comment, String name, observationMailData observation, List<UserGroupMailData> groups,
+			String modifiedComment) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), type.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { recipient.getEmail() });
@@ -179,13 +185,13 @@ public class MailServiceImpl implements MailService {
 		model.put(COMMENT_POST.WHAT_POSTED_ID.getAction(), observation.getObservationId());
 		model.put(COMMENT_POST.WHAT_POSTED_NAME.getAction(),
 				(observation.getScientificName() != null && !observation.getScientificName().isEmpty())
-				? observation.getScientificName()
-				: (observation.getCommonName() != null && !observation.getCommonName().isEmpty())
-					? observation.getCommonName()
-							: "Help Identify");
+						? observation.getScientificName()
+						: (observation.getCommonName() != null && !observation.getCommonName().isEmpty())
+								? observation.getCommonName()
+								: "Help Identify");
 		model.put(COMMENT_POST.WHAT_POSTED_LOCATION.getAction(),
 				observation.getLocation() == null ? "" : observation.getLocation());
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		model.put(COMMENT_POST.WHAT_POSTED_OBSERVED_ON.getAction(), sdf.format(observation.getObservedOn()));
 		String image = observation.getIconURl() == null ? "" : observation.getIconURl();
 		if (!image.isEmpty()) {

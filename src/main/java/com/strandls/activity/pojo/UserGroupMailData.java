@@ -67,4 +67,9 @@ public class UserGroupMailData {
 		this.webAddress = webAddress;
 	}
 
+	@Override
+	public String toString() {
+		return "UserGroupMailData [id=" + id + ", name=" + name + ", icon=" + icon + ", webAddress=" + webAddress + "]";
+	}
+
 }
