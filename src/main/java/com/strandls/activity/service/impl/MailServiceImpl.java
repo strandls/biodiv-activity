@@ -191,8 +191,9 @@ public class MailServiceImpl implements MailService {
 								: "Help Identify");
 		model.put(COMMENT_POST.WHAT_POSTED_LOCATION.getAction(),
 				observation.getLocation() == null ? "" : observation.getLocation());
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		model.put(COMMENT_POST.WHAT_POSTED_OBSERVED_ON.getAction(), sdf.format(observation.getObservedOn()));
+		SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy");
+		String date = ActivityUtil.getFormattedDate(sdf.format(observation.getObservedOn()));
+		model.put(COMMENT_POST.WHAT_POSTED_OBSERVED_ON.getAction(), date);
 		String image = observation.getIconURl() == null ? "" : observation.getIconURl();
 		if (!image.isEmpty()) {
 			int dot = image.lastIndexOf(".");

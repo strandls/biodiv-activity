@@ -1,6 +1,7 @@
 package com.strandls.activity.util;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -114,6 +115,26 @@ public class ActivityUtil {
 			break;
 		}
 		return type;
+	}
+	
+	public static String getFormattedDate(String date) {
+		String[] d = date.split(" ");
+		return String.join(" ", Integer.parseInt(d[0]) + getDateSuffix(d[0]), d[1], d[2]);
+	}
+	
+	private static String getDateSuffix(String date) {
+		try {
+			int d = Integer.parseInt(date);
+			switch (d % 10) {
+			case 1: return "st";
+			case 2: return "nd";
+			case 3: return "rd";
+			default: return "th";
+			}			
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());
+		}
+		return "";
 	}
 
 }
