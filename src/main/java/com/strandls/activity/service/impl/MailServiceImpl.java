@@ -171,7 +171,7 @@ public class MailServiceImpl implements MailService {
 			int dot = icon.lastIndexOf(".");
 			String fileName = icon.substring(0, dot);
 			String extension = icon.substring(dot);
-			icon = String.join("_gall_th", fileName, "jpg");
+			icon = String.join("_gall_th", fileName, ".jpg");
 		}
 		model.put(COMMENT_POST.WHO_POSTED_ICON.getAction(), icon.isEmpty() ? "/user_large.png" : icon);
 		model.put(COMMENT_POST.WHO_POSTED_NAME.getAction(),
