@@ -89,13 +89,12 @@ public class MailServiceImpl implements MailService {
 
 			System.out.println("INSIDE MAIL SERVICE IMPL");
 
-			if(groups==null) {
+			if (groups == null) {
 				System.out.println();
 				System.out.println("NULL IN GROUPS");
 				System.out.println();
 			}
-			
-			
+
 			if (groups != null && groups.size() > 0) {
 				for (UserGroupMailData mailData : groups) {
 					System.out.println("***** GroupFromAPI *****" + mailData.toString());
@@ -116,7 +115,9 @@ public class MailServiceImpl implements MailService {
 					recipient.setId(follower.getId());
 					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
 							observation, groups, linkTaggedUsers);
-					if (follower.getSendNotification() != null && follower.getSendNotification()) {
+					if (follower.getEmail() != null && !follower.getEmail().isEmpty()
+							&& !follower.getEmail().contains("@ibp.org") && follower.getSendNotification() != null
+							&& follower.getSendNotification()) {
 						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 								JsonUtil.mapToJSON(data));
 					}
@@ -126,7 +127,9 @@ public class MailServiceImpl implements MailService {
 					User follower = userService.getUser(String.valueOf(recipient.getId()));
 					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
 							observation, groups, linkTaggedUsers);
-					if (recipient.getIsSubscribed() != null && recipient.getIsSubscribed()) {
+					if (recipient.getEmail() != null && !recipient.getEmail().isEmpty()
+							&& !recipient.getEmail().contains("@ibp.org") && recipient.getIsSubscribed() != null
+							&& recipient.getIsSubscribed()) {
 						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 								JsonUtil.mapToJSON(data));
 					}
