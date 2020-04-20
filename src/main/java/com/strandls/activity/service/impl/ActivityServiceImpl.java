@@ -63,7 +63,7 @@ public class ActivityServiceImpl implements ActivityService {
 	private MailService mailService;
 
 	List<String> nullActivityList = new ArrayList<String>(
-			Arrays.asList("Observation created", "Observation updated", "Rated media resource"));
+			Arrays.asList("Observation created", "Observation updated", "Rated media resource", "Observation Deleted"));
 
 	List<String> recommendationActivityList = new ArrayList<String>(
 			Arrays.asList("obv unlocked", "Suggested species name", "obv locked", "Agreed on species name"));
@@ -259,7 +259,7 @@ public class ActivityServiceImpl implements ActivityService {
 		List<TaggedUser> taggedUsers = ActivityUtil.getTaggedUsers(commentData.getBody());
 		if (taggedUsers.size() > 0) {
 			mailService.sendMail(MAIL_TYPE.TAGGED_MAIL, activityResult.getRootHolderType(),
-					activityResult.getRootHolderId(), userId, commentData, activity, taggedUsers);			
+					activityResult.getRootHolderId(), userId, commentData, activity, taggedUsers);
 		}
 		mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(),
 				activityResult.getRootHolderId(), userId, commentData, activity, taggedUsers);
