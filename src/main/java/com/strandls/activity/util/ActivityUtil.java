@@ -1,7 +1,6 @@
 package com.strandls.activity.util;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -109,7 +108,13 @@ public class ActivityUtil {
 		case "Added a comment":
 			type = MAIL_TYPE.COMMENT_POST;
 			break;
-
+		case "Observation Deleted":
+			type = MAIL_TYPE.OBSERVATION_DELETED;
+			break;
+		case "Rated media resource":
+			type = MAIL_TYPE.RATED_MEDIA_RESOURCE;
+			break;
+			
 		default:
 			type = null;
 			break;
