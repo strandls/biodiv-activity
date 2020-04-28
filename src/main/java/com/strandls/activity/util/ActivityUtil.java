@@ -1,7 +1,9 @@
 package com.strandls.activity.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +19,14 @@ public class ActivityUtil {
 	private final static Logger logger = LoggerFactory.getLogger(ActivityUtil.class);
 	
 	private static final String TAGGED_USER_REGEX = "@\\[(.*?)\\]\\(\\d+\\)";
+	
+	private static final Map<String, String> flaggedMessages = new HashMap<String, String>();
+	
+	static {
+		flaggedMessages.put("DETAILS_INAPPROPRIATE", "Details Inapppropriate");
+		flaggedMessages.put("LOCATION_INAPPROPRIATE", "Location Inapppropriate");
+		flaggedMessages.put("DATE_INAPPROPRIATE", "Date Inapppropriate");
+	}	
 
 	public static List<TaggedUser> getTaggedUsers(String comment) {
 		List<TaggedUser> users = new ArrayList<TaggedUser>();
@@ -55,6 +65,15 @@ public class ActivityUtil {
 			logger.error(ex.getMessage());
 		}
 		return comment;
+	}
+	
+	public static String replaceFlaggedMessage(String message) {
+		for (Map.Entry<String, String> m: flaggedMessages.entrySet()) {
+			if (message.contains(m.getKey())) {
+				message = message.replaceAll(m.getKey(), m.getValue());
+			}
+		}
+		return message;
 	}
 
 	public static MAIL_TYPE getMailType(String activity, boolean isUserGroup) {
