@@ -95,7 +95,7 @@ public class ActivityController {
 
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
-			Activity result = service.logActivities(userId, activityLogging);
+			Activity result = service.logActivities(request, userId, activityLogging);
 			return Response.status(Status.OK).entity(result).build();
 
 		} catch (Exception e) {
@@ -110,9 +110,9 @@ public class ActivityController {
 	@Produces(MediaType.TEXT_PLAIN)
 
 	@ValidateUser
-	
-	@ApiOperation(value = "sents out cumulative mail and notification for observation create", notes = "sents out mail and notification for observationCreate",response = String.class)
-	@ApiResponses(value = {@ApiResponse(code = 400,message = "unable to send the mail",response = String.class)})
+
+	@ApiOperation(value = "sents out cumulative mail and notification for observation create", notes = "sents out mail and notification for observationCreate", response = String.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "unable to send the mail", response = String.class) })
 
 	public Response sendMailCreateObservation(@Context HttpServletRequest request,
 			@ApiParam(name = "activityLogging") ActivityLoggingData activityLogging) {
@@ -121,7 +121,7 @@ public class ActivityController {
 			Long userId = Long.parseLong(profile.getId());
 			String result = service.sendObvCreateMail(userId, activityLogging);
 			return Response.status(Status.OK).entity(result).build();
-			
+
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
@@ -145,7 +145,7 @@ public class ActivityController {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
 			if (commentData.getBody().trim().length() > 0) {
-				Activity result = service.addComment(userId, commentData);
+				Activity result = service.addComment(request, userId, commentData);
 				return Response.status(Status.OK).entity(result).build();
 			}
 			return Response.status(Status.NOT_ACCEPTABLE).entity("Blank Comment Not allowed").build();

@@ -8,12 +8,15 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.strandls.activity.ActivityEnums;
+import com.strandls.activity.Headers;
 import com.strandls.activity.dao.ActivityDao;
 import com.strandls.activity.dao.CommentsDao;
 import com.strandls.activity.pojo.Activity;
@@ -61,6 +64,9 @@ public class ActivityServiceImpl implements ActivityService {
 
 	@Inject
 	private MailService mailService;
+
+	@Inject
+	private Headers headers;
 
 	List<String> nullActivityList = new ArrayList<String>(
 			Arrays.asList("Observation created", "Observation updated", "Rated media resource", "Observation Deleted"));
@@ -139,7 +145,7 @@ public class ActivityServiceImpl implements ActivityService {
 	}
 
 	@Override
-	public Activity logActivities(Long userId, ActivityLoggingData loggingData) {
+	public Activity logActivities(HttpServletRequest request, Long userId, ActivityLoggingData loggingData) {
 		Activity activity = null;
 		MAIL_TYPE type = null;
 		if (nullActivityList.contains(loggingData.getActivityType())) {
@@ -188,6 +194,7 @@ public class ActivityServiceImpl implements ActivityService {
 
 		Activity result = activityDao.save(activity);
 		try {
+			userService = headers.addUserHeader(userService, request);
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
 			if (loggingData.getMailData() != null) {
 				type = ActivityUtil.getMailType(activity.getActivityType(),
@@ -223,7 +230,7 @@ public class ActivityServiceImpl implements ActivityService {
 	}
 
 	@Override
-	public Activity addComment(Long userId, CommentLoggingData commentData) {
+	public Activity addComment(HttpServletRequest request, Long userId, CommentLoggingData commentData) {
 
 		if (commentData.getSubRootHolderId() == null) {
 			commentData.setSubRootHolderId(commentData.getRootHolderId());
@@ -255,7 +262,7 @@ public class ActivityServiceImpl implements ActivityService {
 			activity = new ActivityLoggingData(null, result.getRootHolderId(), result.getCommentHolderId(),
 					result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
 		}
-		Activity activityResult = logActivities(userId, activity);
+		Activity activityResult = logActivities(request, userId, activity);
 		List<TaggedUser> taggedUsers = ActivityUtil.getTaggedUsers(commentData.getBody());
 		if (taggedUsers.size() > 0) {
 			mailService.sendMail(MAIL_TYPE.TAGGED_MAIL, activityResult.getRootHolderType(),
