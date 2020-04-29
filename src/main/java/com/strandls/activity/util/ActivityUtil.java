@@ -10,7 +10,10 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.TaggedUser;
+import com.strandls.activity.pojo.UserGroupActivity;
 import com.strandls.activity.service.impl.PropertyFileUtil;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 
@@ -76,7 +79,15 @@ public class ActivityUtil {
 		return message;
 	}
 
-	public static MAIL_TYPE getMailType(String activity, boolean isUserGroup) {
+	public static MAIL_TYPE getMailType(String activity, ActivityLoggingData loggingData) {
+		boolean featuredToIBP = false;
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			UserGroupActivity data = mapper.readValue(loggingData.getActivityDescription(), UserGroupActivity.class);
+			featuredToIBP = (data.getUserGroupId() == null);
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());			
+		}
 		MAIL_TYPE type = null;
 		switch (activity) {
 		case "Observation created":
@@ -104,7 +115,7 @@ public class ActivityUtil {
 			type = MAIL_TYPE.POST_TO_GROUP;
 			break;
 		case "Featured":
-			type = isUserGroup ? MAIL_TYPE.FEATURED_POST : MAIL_TYPE.FEATURED_POST_IBP;
+			type = !featuredToIBP ? MAIL_TYPE.FEATURED_POST : MAIL_TYPE.FEATURED_POST_IBP;
 			break;
 		case "Updated fact":
 			type = MAIL_TYPE.FACT_UPDATED;
