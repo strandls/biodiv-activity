@@ -1,14 +1,19 @@
 package com.strandls.activity.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.TaggedUser;
+import com.strandls.activity.pojo.UserGroupActivity;
 import com.strandls.activity.service.impl.PropertyFileUtil;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 
@@ -17,6 +22,14 @@ public class ActivityUtil {
 	private final static Logger logger = LoggerFactory.getLogger(ActivityUtil.class);
 	
 	private static final String TAGGED_USER_REGEX = "@\\[(.*?)\\]\\(\\d+\\)";
+	
+	private static final Map<String, String> flaggedMessages = new HashMap<String, String>();
+	
+	static {
+		flaggedMessages.put("DETAILS_INAPPROPRIATE", "Details Inapppropriate");
+		flaggedMessages.put("LOCATION_INAPPROPRIATE", "Location Inapppropriate");
+		flaggedMessages.put("DATE_INAPPROPRIATE", "Date Inapppropriate");
+	}	
 
 	public static List<TaggedUser> getTaggedUsers(String comment) {
 		List<TaggedUser> users = new ArrayList<TaggedUser>();
@@ -56,8 +69,25 @@ public class ActivityUtil {
 		}
 		return comment;
 	}
+	
+	public static String replaceFlaggedMessage(String message) {
+		for (Map.Entry<String, String> m: flaggedMessages.entrySet()) {
+			if (message.contains(m.getKey())) {
+				message = message.replaceAll(m.getKey(), m.getValue());
+			}
+		}
+		return message;
+	}
 
-	public static MAIL_TYPE getMailType(String activity, boolean isUserGroup) {
+	public static MAIL_TYPE getMailType(String activity, ActivityLoggingData loggingData) {
+		boolean featuredToIBP = false;
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			UserGroupActivity data = mapper.readValue(loggingData.getActivityDescription(), UserGroupActivity.class);
+			featuredToIBP = (data.getUserGroupId() == null);
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());			
+		}
 		MAIL_TYPE type = null;
 		switch (activity) {
 		case "Observation created":
@@ -85,7 +115,7 @@ public class ActivityUtil {
 			type = MAIL_TYPE.POST_TO_GROUP;
 			break;
 		case "Featured":
-			type = isUserGroup ? MAIL_TYPE.FEATURED_POST : MAIL_TYPE.FEATURED_POST_IBP;
+			type = !featuredToIBP ? MAIL_TYPE.FEATURED_POST : MAIL_TYPE.FEATURED_POST_IBP;
 			break;
 		case "Updated fact":
 			type = MAIL_TYPE.FACT_UPDATED;
