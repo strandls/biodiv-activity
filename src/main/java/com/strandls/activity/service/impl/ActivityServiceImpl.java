@@ -8,12 +8,15 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.strandls.activity.ActivityEnums;
+import com.strandls.activity.Headers;
 import com.strandls.activity.dao.ActivityDao;
 import com.strandls.activity.dao.CommentsDao;
 import com.strandls.activity.pojo.Activity;
@@ -63,6 +66,9 @@ public class ActivityServiceImpl implements ActivityService {
 	@Inject
 	private MailService mailService;
 
+	@Inject
+	private Headers headers;
+
 	List<String> obvNullActivityList = new ArrayList<String>(
 			Arrays.asList("Observation created", "Observation updated", "Rated media resource", "Observation Deleted"));
 
@@ -90,6 +96,9 @@ public class ActivityServiceImpl implements ActivityService {
 
 	List<String> ugCustomFieldActivityList = new ArrayList<String>(
 			Arrays.asList("Added Custom Field", "Removed Custom Field"));
+
+	List<String> ugFilterRuleActivityList = new ArrayList<String>(
+			Arrays.asList("Added Filter Rule", "Removed Filter Rule", "Disabled Filter Rule", "Enabled Filter Rule"));
 
 	@Override
 	public ActivityResult fetchActivityIbp(String objectType, Long objectId, String offset, String limit) {
@@ -150,7 +159,7 @@ public class ActivityServiceImpl implements ActivityService {
 	}
 
 	@Override
-	public Activity logActivities(Long userId, ActivityLoggingData loggingData) {
+	public Activity logActivities(HttpServletRequest request, Long userId, ActivityLoggingData loggingData) {
 		Activity activity = null;
 		MAIL_TYPE type = null;
 		if (obvNullActivityList.contains(loggingData.getActivityType())) {
@@ -199,10 +208,10 @@ public class ActivityServiceImpl implements ActivityService {
 
 		Activity result = activityDao.save(activity);
 		try {
+			userService = headers.addUserHeader(userService, request);
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
 			if (loggingData.getMailData() != null) {
-				type = ActivityUtil.getMailType(activity.getActivityType(),
-						obvUserGroupActivityList.contains(activity.getActivityType()));
+				type = ActivityUtil.getMailType(activity.getActivityType(), loggingData);
 				if (type != null && type != MAIL_TYPE.COMMENT_POST) {
 					mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
 							loggingData, null);
@@ -234,7 +243,7 @@ public class ActivityServiceImpl implements ActivityService {
 	}
 
 	@Override
-	public Activity addComment(Long userId, CommentLoggingData commentData) {
+	public Activity addComment(HttpServletRequest request, Long userId, CommentLoggingData commentData) {
 
 		if (commentData.getSubRootHolderId() == null) {
 			commentData.setSubRootHolderId(commentData.getRootHolderId());
@@ -266,7 +275,7 @@ public class ActivityServiceImpl implements ActivityService {
 			activity = new ActivityLoggingData(null, result.getRootHolderId(), result.getCommentHolderId(),
 					result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
 		}
-		Activity activityResult = logActivities(userId, activity);
+		Activity activityResult = logActivities(request, userId, activity);
 		List<TaggedUser> taggedUsers = ActivityUtil.getTaggedUsers(commentData.getBody());
 		if (taggedUsers.size() > 0) {
 			mailService.sendMail(MAIL_TYPE.TAGGED_MAIL, activityResult.getRootHolderType(),
@@ -304,6 +313,12 @@ public class ActivityServiceImpl implements ActivityService {
 		} else if (ugCustomFieldActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 					ActivityEnums.customField.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+					new Date(), loggingData.getRootObjectId(), ActivityEnums.userGroup.getValue(),
+					loggingData.getSubRootObjectId(), ActivityEnums.userGroup.getValue(), true, null);
+		} else if (ugFilterRuleActivityList.contains(loggingData.getActivityType())) {
+
+			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+					ActivityEnums.filterRule.getValue(), null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.userGroup.getValue(),
 					loggingData.getSubRootObjectId(), ActivityEnums.userGroup.getValue(), true, null);
 		}

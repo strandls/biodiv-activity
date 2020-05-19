@@ -11,7 +11,8 @@ public enum ActivityEnums {
 
 	observation("species.participation.Observation"), recommendationVote("species.participation.RecommendationVote"),
 	userGroup("species.groups.UserGroup"), facts("species.trait.Fact"), comments("species.participation.Comment"),
-	flag("species.participation.Flag"), user("species.auth.SUser"), customField("CustomField");
+	flag("species.participation.Flag"), user("species.auth.SUser"), customField("CustomField"),
+	filterRule("FilterRule");
 
 	String value;
 

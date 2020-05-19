@@ -13,6 +13,7 @@ public class UserGroupActivity {
 	private String userGroupName;
 	private String webAddress;
 	private String featured;
+	private String reason;
 
 	/**
 	 * 
@@ -26,13 +27,16 @@ public class UserGroupActivity {
 	 * @param userGroupName
 	 * @param webAddress
 	 * @param featured
+	 * @param reason
 	 */
-	public UserGroupActivity(Long userGroupId, String userGroupName, String webAddress, String featured) {
+	public UserGroupActivity(Long userGroupId, String userGroupName, String webAddress, String featured,
+			String reason) {
 		super();
 		this.userGroupId = userGroupId;
 		this.userGroupName = userGroupName;
 		this.webAddress = webAddress;
 		this.featured = featured;
+		this.reason = reason;
 	}
 
 	public Long getUserGroupId() {
@@ -65,6 +69,14 @@ public class UserGroupActivity {
 
 	public void setFeatured(String featured) {
 		this.featured = featured;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 
 }

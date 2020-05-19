@@ -162,9 +162,10 @@ public class MailServiceImpl implements MailService {
 		}
 
 		if (type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED
-				|| type == MAIL_TYPE.FEATURED_POST || type == MAIL_TYPE.FEATURED_POST_IBP
 				|| type == MAIL_TYPE.OBSERVATION_FLAGGED) {
-			model.put(COMMENT_POST.COMMENT_BODY.getAction(), activity.getActivityDescription());
+			model.put(COMMENT_POST.COMMENT_BODY.getAction(), ActivityUtil.replaceFlaggedMessage(activity.getActivityDescription()));
+		} else if (type == MAIL_TYPE.FEATURED_POST || type == MAIL_TYPE.FEATURED_POST_IBP) {
+			model.put(COMMENT_POST.COMMENT_BODY.getAction(), userGroup.getFeatured());
 		}
 		model.put(COMMENT_POST.FOLLOWER_ID.getAction(), follower.getId());
 		model.put(COMMENT_POST.FOLLOWER_NAME.getAction(), follower.getName());
