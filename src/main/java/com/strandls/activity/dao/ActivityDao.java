@@ -85,6 +85,24 @@ public class ActivityDao extends AbstractDAO<Activity, Long> {
 		return commentCount;
 	}
 
+	@SuppressWarnings("unchecked")
+	public Integer findActivityCountByObjectId(String objectType, Long objectId) {
+		String qry = "from Activity where rootHolderType = :objectType and rootHolderId = :id";
+		Session session = sessionFactory.openSession();
+		Integer activityCount = 0;
+		try {
+			Query<Activity> query = session.createQuery(qry);
+			query.setParameter("objectType", objectType);
+			query.setParameter("id", objectId);
+			activityCount = query.getResultList().size();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return activityCount;
+	}
+
 	public List<Activity> findAllObservationActivity(String type, Integer startPosition) {
 		Session session = sessionFactory.openSession();
 		String qry = "from Activity where rootHolderType = :type order by id";

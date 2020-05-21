@@ -275,4 +275,12 @@ public class ActivityServiceImpl implements ActivityService {
 		return activityResult;
 	}
 
+	@Override
+	public Integer activityCount(String objectType, Long objectId) {
+		if (objectType.equalsIgnoreCase("observation"))
+			objectType = ActivityEnums.observation.getValue();
+		Integer count = activityDao.findActivityCountByObjectId(objectType, objectId);
+		return count;
+	}
+
 }
