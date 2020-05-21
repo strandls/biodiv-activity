@@ -27,4 +27,6 @@ public interface ActivityService {
 
 	public Activity logUGActivities(Long userId, UserGroupActivityLogging loggingData);
 
+	public Integer activityCount(String objectType, Long objectId);
+
 }
