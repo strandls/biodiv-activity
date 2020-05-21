@@ -24,4 +24,6 @@ public interface ActivityService {
 
 	public String sendObvCreateMail(Long userid, ActivityLoggingData loggingData);
 
+	public Integer activityCount(String objectType, Long objectId);
+
 }
