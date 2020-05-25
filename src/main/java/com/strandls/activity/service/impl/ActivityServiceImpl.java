@@ -8,14 +8,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javax.inject.Inject;
-
 import com.strandls.activity.ActivityEnums;
 import com.strandls.activity.Headers;
 import com.strandls.activity.dao.ActivityDao;
@@ -195,7 +195,7 @@ public class ActivityServiceImpl implements ActivityService {
 
 		Activity result = activityDao.save(activity);
 		try {
-			userService = headers.addUserHeader(userService, request);
+			userService = headers.addUserHeader(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
 			if (loggingData.getMailData() != null) {
 				type = ActivityUtil.getMailType(activity.getActivityType(), loggingData);
