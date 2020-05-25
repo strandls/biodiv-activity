@@ -14,7 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 import com.strandls.activity.ActivityEnums;
 import com.strandls.activity.Headers;
 import com.strandls.activity.dao.ActivityDao;
