@@ -38,7 +38,6 @@ import com.rabbitmq.client.Channel;
 import com.strandls.activity.controller.ActivityControllerModule;
 import com.strandls.activity.dao.ActivityDaoModule;
 import com.strandls.activity.service.impl.ActivityServiceModule;
-import com.strandls.authentication_utility.filter.FilterModule;
 import com.strandls.mail_utility.producer.RabbitMQProducer;
 import com.strandls.user.controller.UserServiceApi;
 
@@ -97,7 +96,7 @@ public class ActivityServeletContextListener extends GuiceServletContextListener
 				bind(ServletContainer.class).in(Scopes.SINGLETON);
 				serve("/api/*").with(ServletContainer.class, props);
 			}
-		}, new ActivityControllerModule(), new FilterModule(), new ActivityServiceModule(), new ActivityDaoModule());
+		}, new ActivityControllerModule(), new ActivityServiceModule(), new ActivityDaoModule());
 
 		return injector;
 
