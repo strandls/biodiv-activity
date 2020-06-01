@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 import com.rabbitmq.client.Channel;
 import com.strandls.activity.RabbitMqConnection;
 import com.strandls.activity.service.NotificationService;
