@@ -43,7 +43,8 @@ public class NotificationServiceImpl implements NotificationService {
 				}
 			}
 		} catch (Exception ex) {
-
+			System.out.println("\n\n***** Error in sendNotification *****\n\n");
+			ex.printStackTrace();
 		}
 	}
 
