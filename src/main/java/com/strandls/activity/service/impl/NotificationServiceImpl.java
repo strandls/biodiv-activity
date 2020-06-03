@@ -28,6 +28,7 @@ public class NotificationServiceImpl implements NotificationService {
 	public void sendNotification(String objectType, Long objectId, String title, String content) {
 		try {
 			List<Recipients> recipients = userService.getRecipients(objectType, objectId);
+			System.out.println("\n\n***** Log Recipients: " + recipients + " *****\n\n");
 			for (Recipients recipient : recipients) {
 				for (String token : recipient.getTokens()) {
 					Map<String, Object> data = new HashMap<String, Object>();
