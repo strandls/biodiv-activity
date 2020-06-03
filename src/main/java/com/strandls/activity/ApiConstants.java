@@ -21,5 +21,6 @@ public class ApiConstants {
 	public static final String ADD = "/add";
 	public static final String MIGRATE = "/migrate";
 	public static final String SENDMAIL = "/sendmail";
+	public static final String USERGROUP = "/userGroup";
 	public static final String COUNT = "/count";
 }

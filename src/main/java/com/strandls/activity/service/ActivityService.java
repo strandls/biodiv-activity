@@ -9,6 +9,7 @@ import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.CommentLoggingData;
+import com.strandls.activity.pojo.UserGroupActivityLogging;
 
 /**
  * @author Abhishek Rudra
@@ -23,6 +24,8 @@ public interface ActivityService {
 	public Activity addComment(HttpServletRequest request, Long userId, CommentLoggingData commentData);
 
 	public String sendObvCreateMail(Long userid, ActivityLoggingData loggingData);
+
+	public Activity logUGActivities(Long userId, UserGroupActivityLogging loggingData);
 
 	public Integer activityCount(String objectType, Long objectId);
 
