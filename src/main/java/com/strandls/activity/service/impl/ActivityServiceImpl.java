@@ -93,7 +93,7 @@ public class ActivityServiceImpl implements ActivityService {
 	List<String> userGroupActivityList = new ArrayList<String>(Arrays.asList("Removed resoruce", "Posted resource"));
 
 	List<String> ugUserActivityList = new ArrayList<String>(
-			Arrays.asList("Joined group", "Left Group", "Role updated", "Invitation Sent", "Removed user"));
+			Arrays.asList("Joined group", "Left Group", "Role updated", "Invitation Sent", "Removed user","Requested Join"));
 
 	List<String> ugCustomFieldActivityList = new ArrayList<String>(
 			Arrays.asList("Added Custom Field", "Removed Custom Field"));
