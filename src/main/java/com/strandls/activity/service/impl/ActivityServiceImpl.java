@@ -32,6 +32,7 @@ import com.strandls.activity.pojo.RecoVoteActivity;
 import com.strandls.activity.pojo.ShowActivityIbp;
 import com.strandls.activity.pojo.TaggedUser;
 import com.strandls.activity.pojo.UserGroupActivity;
+import com.strandls.activity.pojo.UserGroupActivityLogging;
 import com.strandls.activity.service.ActivityService;
 import com.strandls.activity.service.MailService;
 import com.strandls.activity.service.NotificationService;
@@ -69,23 +70,36 @@ public class ActivityServiceImpl implements ActivityService {
 	@Inject
 	private Headers headers;
 
-	List<String> nullActivityList = new ArrayList<String>(
+	List<String> obvNullActivityList = new ArrayList<String>(
 			Arrays.asList("Observation created", "Observation updated", "Rated media resource", "Observation Deleted"));
 
-	List<String> recommendationActivityList = new ArrayList<String>(
+	List<String> obvRecommendationActivityList = new ArrayList<String>(
 			Arrays.asList("obv unlocked", "Suggested species name", "obv locked", "Agreed on species name"));
 
-	List<String> userGroupActivityList = new ArrayList<String>(
+	List<String> obvUserGroupActivityList = new ArrayList<String>(
 			Arrays.asList("Posted resource", "Removed resoruce", "Featured", "UnFeatured"));
 
-	List<String> traitsActivityList = new ArrayList<String>(Arrays.asList("Updated fact", "Added a fact"));
+	List<String> obvTraitsActivityList = new ArrayList<String>(Arrays.asList("Updated fact", "Added a fact"));
 
-	List<String> flagActivityList = new ArrayList<String>(Arrays.asList("Flag removed", "Flagged"));
+	List<String> obvFlagActivityList = new ArrayList<String>(Arrays.asList("Flag removed", "Flagged"));
 
 	List<String> commentActivityList = new ArrayList<String>(Arrays.asList("Added a comment"));
 
 	List<String> observationActivityList = new ArrayList<String>(Arrays.asList("Featured", "Suggestion removed",
 			"Observation tag updated", "Custom field edited", "UnFeatured", "Observation species group updated"));
+
+	List<String> ugNullActivityList = new ArrayList<String>(Arrays.asList("Group updated", "Group created"));
+
+	List<String> userGroupActivityList = new ArrayList<String>(Arrays.asList("Removed resoruce", "Posted resource"));
+
+	List<String> ugUserActivityList = new ArrayList<String>(
+			Arrays.asList("Joined group", "Left Group", "Role updated", "Invitation Sent", "Removed user","Requested Join"));
+
+	List<String> ugCustomFieldActivityList = new ArrayList<String>(
+			Arrays.asList("Added Custom Field", "Removed Custom Field"));
+
+	List<String> ugFilterRuleActivityList = new ArrayList<String>(
+			Arrays.asList("Added Filter Rule", "Removed Filter Rule", "Disabled Filter Rule", "Enabled Filter Rule"));
 
 	@Override
 	public ActivityResult fetchActivityIbp(String objectType, Long objectId, String offset, String limit) {
@@ -120,10 +134,10 @@ public class ActivityServiceImpl implements ActivityService {
 						commentIbp = new CommentsIbp(reply.getBody());
 					}
 
-				} else if (userGroupActivityList.contains(activity.getActivityType())) {
+				} else if (obvUserGroupActivityList.contains(activity.getActivityType())) {
 					String description = activity.getActivityDescription();
 					ugActivity = objectMapper.readValue(description, UserGroupActivity.class);
-				} else if (recommendationActivityList.contains(activity.getActivityType())
+				} else if (obvRecommendationActivityList.contains(activity.getActivityType())
 						|| activity.getActivityType().equalsIgnoreCase("Suggestion removed")) {
 					String description = activity.getActivityDescription();
 					recoVoteActivity = objectMapper.readValue(description, RecoVoteActivity.class);
@@ -149,28 +163,28 @@ public class ActivityServiceImpl implements ActivityService {
 	public Activity logActivities(HttpServletRequest request, Long userId, ActivityLoggingData loggingData) {
 		Activity activity = null;
 		MAIL_TYPE type = null;
-		if (nullActivityList.contains(loggingData.getActivityType())) {
+		if (obvNullActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, null, null, null, null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
 
-		} else if (recommendationActivityList.contains(loggingData.getActivityType())) {
+		} else if (obvRecommendationActivityList.contains(loggingData.getActivityType())) {
 
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 					ActivityEnums.recommendationVote.getValue(), null, loggingData.getActivityType(), userId,
 					new Date(), new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
-		} else if (userGroupActivityList.contains(loggingData.getActivityType())) {
+		} else if (obvUserGroupActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 					ActivityEnums.userGroup.getValue(), null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
-		} else if (traitsActivityList.contains(loggingData.getActivityType())) {
+		} else if (obvTraitsActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 					ActivityEnums.facts.getValue(), null, loggingData.getActivityType(), userId, new Date(), new Date(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), loggingData.getRootObjectId(),
 					ActivityEnums.observation.getValue(), true, null);
-		} else if (flagActivityList.contains(loggingData.getActivityType())) {
+		} else if (obvFlagActivityList.contains(loggingData.getActivityType())) {
 			MyJson myJson = new MyJson();
 			String[] description = loggingData.getActivityDescription().split(":");
 			String desc = description[0] + "\n" + description[1];
@@ -274,6 +288,46 @@ public class ActivityServiceImpl implements ActivityService {
 				"India Biodiversity Portal", activity.getActivityType());
 
 		return activityResult;
+	}
+
+	@Override
+	public Activity logUGActivities(Long userId, UserGroupActivityLogging loggingData) {
+
+		Activity activity = null;
+		if (ugNullActivityList.contains(loggingData.getActivityType())) {
+			activity = new Activity(null, 0L, null, null, null, null, loggingData.getActivityType(), userId, new Date(),
+					new Date(), loggingData.getRootObjectId(), ActivityEnums.userGroup.getValue(),
+					loggingData.getSubRootObjectId(), ActivityEnums.userGroup.getValue(), true, null);
+
+		} else if (userGroupActivityList.contains(loggingData.getActivityType())) {
+			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+					ActivityEnums.userGroup.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+					new Date(), loggingData.getRootObjectId(), ActivityEnums.userGroup.getValue(),
+					loggingData.getSubRootObjectId(), ActivityEnums.userGroup.getValue(), true, null);
+
+		} else if (ugUserActivityList.contains(loggingData.getActivityType())) {
+			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+					ActivityEnums.user.getValue(), null, loggingData.getActivityType(), userId, new Date(), new Date(),
+					loggingData.getRootObjectId(), ActivityEnums.userGroup.getValue(), loggingData.getSubRootObjectId(),
+					ActivityEnums.userGroup.getValue(), true, null);
+
+		} else if (ugCustomFieldActivityList.contains(loggingData.getActivityType())) {
+			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+					ActivityEnums.customField.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+					new Date(), loggingData.getRootObjectId(), ActivityEnums.userGroup.getValue(),
+					loggingData.getSubRootObjectId(), ActivityEnums.userGroup.getValue(), true, null);
+		} else if (ugFilterRuleActivityList.contains(loggingData.getActivityType())) {
+
+			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+					ActivityEnums.filterRule.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+					new Date(), loggingData.getRootObjectId(), ActivityEnums.userGroup.getValue(),
+					loggingData.getSubRootObjectId(), ActivityEnums.userGroup.getValue(), true, null);
+		}
+
+		if (activity != null)
+			activity = activityDao.save(activity);
+
+		return activity;
 	}
 
 	@Override

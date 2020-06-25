@@ -27,6 +27,7 @@ import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.CommentLoggingData;
+import com.strandls.activity.pojo.UserGroupActivityLogging;
 import com.strandls.activity.service.ActivityService;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
@@ -150,6 +151,30 @@ public class ActivityController {
 				return Response.status(Status.OK).entity(result).build();
 			}
 			return Response.status(Status.NOT_ACCEPTABLE).entity("Blank Comment Not allowed").build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@POST
+	@Path(ApiConstants.LOG + ApiConstants.USERGROUP)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "logs userGroup Activity", notes = "Retruns the activity that is logged", response = Activity.class)
+	@ApiResponses(value = {
+
+			@ApiResponse(code = 400, message = "Unable to log the activity", response = String.class) })
+
+	public Response logUserGroupActivity(@Context HttpServletRequest request,
+			@ApiParam(name = "userGroupActivityLogging") UserGroupActivityLogging loggingData) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			Activity result = service.logUGActivities(userId, loggingData);
+			return Response.status(Status.OK).entity(result).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
