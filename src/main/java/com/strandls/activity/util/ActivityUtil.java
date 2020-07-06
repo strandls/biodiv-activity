@@ -86,6 +86,7 @@ public class ActivityUtil {
 			UserGroupActivity data = mapper.readValue(loggingData.getActivityDescription(), UserGroupActivity.class);
 			featuredToIBP = (data.getUserGroupId() == null);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			logger.error(ex.getMessage());			
 		}
 		MAIL_TYPE type = null;
