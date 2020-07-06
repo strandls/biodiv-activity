@@ -81,13 +81,14 @@ public class ActivityUtil {
 
 	public static MAIL_TYPE getMailType(String activity, ActivityLoggingData loggingData) {
 		boolean featuredToIBP = false;
+		System.out.println("\n\n ***** " + activity + " " + loggingData.getActivityDescription() + " *****\n\n");
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			UserGroupActivity data = mapper.readValue(loggingData.getActivityDescription(), UserGroupActivity.class);
 			featuredToIBP = (data.getUserGroupId() == null);
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			logger.error(ex.getMessage());			
+			logger.error(ex.getMessage());	
 		}
 		MAIL_TYPE type = null;
 		switch (activity) {
