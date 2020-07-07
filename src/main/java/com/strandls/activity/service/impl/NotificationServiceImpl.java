@@ -45,6 +45,7 @@ public class NotificationServiceImpl implements NotificationService {
 			Map<String, Object> notification = new HashMap<String, Object>();
 			notification.put(NOTIFICATION_DATA.TITLE.getAction(), title);
 			notification.put(NOTIFICATION_DATA.BODY.getAction(), content);
+			notification.put(NOTIFICATION_DATA.CLICK_ACTION.getAction(), "/observation/show/" + observation.getObservationId());
 			if (!image.isEmpty()) {
 				notification.put(NOTIFICATION_DATA.ICON.getAction(), resourceUrl + image);
 			}
