@@ -11,7 +11,6 @@ import com.strandls.activity.RabbitMqConnection;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.observationMailData;
 import com.strandls.activity.service.NotificationService;
-import com.strandls.mail_utility.model.EnumModel.COMMENT_POST;
 import com.strandls.mail_utility.model.EnumModel.NOTIFICATION_DATA;
 import com.strandls.mail_utility.model.EnumModel.NOTIFICATION_FIELDS;
 import com.strandls.mail_utility.producer.RabbitMQProducer;
@@ -31,6 +30,7 @@ public class NotificationServiceImpl implements NotificationService {
 	public void sendNotification(ActivityLoggingData activity, String objectType, Long objectId, String title,
 			String content) {
 		try {
+			String resourceUrl = PropertyFileUtil.fetchProperty("config.properties", "pn_resource_url");
 			List<Recipients> recipients = userService.getRecipients(objectType, objectId);
 			observationMailData observation = activity.getMailData().getObservationData();
 			String image = observation.getIconURl() == null ? "" : observation.getIconURl();
@@ -46,7 +46,7 @@ public class NotificationServiceImpl implements NotificationService {
 			notification.put(NOTIFICATION_DATA.TITLE.getAction(), title);
 			notification.put(NOTIFICATION_DATA.BODY.getAction(), content);
 			if (!image.isEmpty()) {
-				notification.put(NOTIFICATION_DATA.ICON.getAction(), image);
+				notification.put(NOTIFICATION_DATA.ICON.getAction(), resourceUrl + image);
 			}
 			data.put(NOTIFICATION_FIELDS.NOTIFICATION.getAction(), JsonUtil.unflattenJSON(notification));
 			for (Recipients recipient : recipients) {
