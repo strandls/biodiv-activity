@@ -128,6 +128,10 @@ public class ActivityUtil {
 			data.put("type", !featuredToIBP ? MAIL_TYPE.FEATURED_POST : MAIL_TYPE.FEATURED_POST_IBP);
 			data.put("text", !featuredToIBP ? "Observation featured" : "Observation featured in IBP");
 			break;
+		case "Added a fact":
+			data.put("type", MAIL_TYPE.FACT_ADDED);
+			data.put("text", "Added a fact");
+			break;			
 		case "Updated fact":
 			data.put("type", MAIL_TYPE.FACT_UPDATED);
 			data.put("text", "Updated fact");
