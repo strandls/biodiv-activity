@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -212,12 +213,13 @@ public class ActivityServiceImpl implements ActivityService {
 			userService = headers.addUserHeader(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
 			if (loggingData.getMailData() != null) {
-				type = ActivityUtil.getMailType(activity.getActivityType(), loggingData);
+				Map<String, Object> data = ActivityUtil.getMailType(activity.getActivityType(), loggingData); 
+				type = (MAIL_TYPE) data.get("type");
 				if (type != null && type != MAIL_TYPE.COMMENT_POST) {
 					mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
 							loggingData, null);
 					notificationSevice.sendNotification(loggingData, result.getRootHolderType(), result.getRootHolderId(),
-							"India Biodiversity Portal", activity.getActivityType());
+							"India Biodiversity Portal", data.get("text").toString());
 				}
 			}
 
