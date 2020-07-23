@@ -79,77 +79,100 @@ public class ActivityUtil {
 		return message;
 	}
 
-	public static MAIL_TYPE getMailType(String activity, ActivityLoggingData loggingData) {
+	public static Map<String, Object> getMailType(String activity, ActivityLoggingData loggingData) {
 		boolean featuredToIBP = false;
+		System.out.println("\n\n ***** " + activity + " " + loggingData.getActivityDescription() + " *****\n\n");
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			UserGroupActivity data = mapper.readValue(loggingData.getActivityDescription(), UserGroupActivity.class);
 			featuredToIBP = (data.getUserGroupId() == null);
 		} catch (Exception ex) {
-			logger.error(ex.getMessage());			
+			ex.printStackTrace();
+			logger.error(ex.getMessage());	
 		}
-		MAIL_TYPE type = null;
+		Map<String, Object> data = new HashMap<String, Object>();
 		switch (activity) {
 		case "Observation created":
-			type = MAIL_TYPE.OBSERVATION_ADDED;
+			data.put("type", MAIL_TYPE.OBSERVATION_ADDED);
+			data.put("text", "Observation created");
 			break;
 		case "Observation updated":
-			type = MAIL_TYPE.OBSERVATION_UPDATED;
+			data.put("type", MAIL_TYPE.OBSERVATION_UPDATED);
+			data.put("text", "Observation updated");
 			break;
 		case "obv unlocked":
-			type = MAIL_TYPE.OBSERVATION_UNLOCKED;
+			data.put("type", MAIL_TYPE.OBSERVATION_UNLOCKED);
+			data.put("text", "Observation unlocked");
 			break;
 		case "Suggested species name":
-			type = MAIL_TYPE.SUGGEST_MAIL;
+			data.put("type", MAIL_TYPE.SUGGEST_MAIL);
+			data.put("text", "Suggested species name");
 			break;
 		case "obv locked":
-			type = MAIL_TYPE.OBSERVATION_LOCKED;
+			data.put("type", MAIL_TYPE.OBSERVATION_LOCKED);
+			data.put("text", "Observation locked");
 			break;
 		case "Agreed on species name":
-			type = MAIL_TYPE.AGREED_SPECIES;
+			data.put("type", MAIL_TYPE.AGREED_SPECIES);
+			data.put("text", "Agreed on species name");
 			break;
 		case "Posted resource":
-			type = MAIL_TYPE.POST_TO_GROUP;
+			data.put("type", MAIL_TYPE.POST_TO_GROUP);
+			data.put("text", "Posted resource");
 			break;
 		case "Removed resoruce":
-			type = MAIL_TYPE.POST_TO_GROUP;
+			data.put("type", MAIL_TYPE.POST_TO_GROUP);
+			data.put("text", "Removed resource");
 			break;
 		case "Featured":
-			type = !featuredToIBP ? MAIL_TYPE.FEATURED_POST : MAIL_TYPE.FEATURED_POST_IBP;
+			data.put("type", !featuredToIBP ? MAIL_TYPE.FEATURED_POST : MAIL_TYPE.FEATURED_POST_IBP);
+			data.put("text", !featuredToIBP ? "Observation featured" : "Observation featured in IBP");
 			break;
+		case "Added a fact":
+			data.put("type", MAIL_TYPE.FACT_ADDED);
+			data.put("text", "Added a fact");
+			break;			
 		case "Updated fact":
-			type = MAIL_TYPE.FACT_UPDATED;
+			data.put("type", MAIL_TYPE.FACT_UPDATED);
+			data.put("text", "Updated fact");
 			break;
 		case "Flagged":
-			type = MAIL_TYPE.OBSERVATION_FLAGGED;
+			data.put("type", MAIL_TYPE.OBSERVATION_FLAGGED);
+			data.put("text", "Observation flagged");
 			break;
 		case "Suggestion removed":
-			type = MAIL_TYPE.REMOVED_SPECIES;
+			data.put("type", MAIL_TYPE.REMOVED_SPECIES);
+			data.put("text", "Suggestion removed");
 			break;
 		case "Observation tag updated":
-			type = MAIL_TYPE.TAG_UPDATED;
+			data.put("type", MAIL_TYPE.TAG_UPDATED);
+			data.put("text", "Observation tag updated");
 			break;
 		case "Custom field edited":
-			type = MAIL_TYPE.CUSTOM_FIELD_UPDATED;
+			data.put("type", MAIL_TYPE.CUSTOM_FIELD_UPDATED);
+			data.put("text", "Custom field edited");
 			break;
 		case "Observation species group updated":
-			type = null;
+			data.put("type", null);
 			break;
 		case "Added a comment":
-			type = MAIL_TYPE.COMMENT_POST;
+			data.put("type", MAIL_TYPE.COMMENT_POST);
+			data.put("text", "Added a comment");
 			break;
 		case "Observation Deleted":
-			type = MAIL_TYPE.OBSERVATION_DELETED;
+			data.put("type", MAIL_TYPE.OBSERVATION_DELETED);
+			data.put("text", "Observation Deleted");
 			break;
 		case "Rated media resource":
-			type = MAIL_TYPE.RATED_MEDIA_RESOURCE;
+			data.put("type", MAIL_TYPE.RATED_MEDIA_RESOURCE);
+			data.put("text", "Rated media resource");
 			break;
 			
 		default:
-			type = null;
+			data.put("type", null);
 			break;
 		}
-		return type;
+		return data;
 	}
 	
 	public static String getFormattedDate(String date) {
