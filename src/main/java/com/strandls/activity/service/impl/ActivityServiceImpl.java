@@ -28,6 +28,8 @@ import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.Comments;
 import com.strandls.activity.pojo.CommentsIbp;
+import com.strandls.activity.pojo.DocumentActivityLogging;
+import com.strandls.activity.pojo.MailActivityData;
 import com.strandls.activity.pojo.MyJson;
 import com.strandls.activity.pojo.RecoVoteActivity;
 import com.strandls.activity.pojo.ShowActivityIbp;
@@ -71,6 +73,13 @@ public class ActivityServiceImpl implements ActivityService {
 	@Inject
 	private Headers headers;
 
+	List<String> userGroupActivities = new ArrayList<String>(
+			Arrays.asList("Posted resource", "Removed resoruce", "Featured", "UnFeatured"));
+
+	List<String> recoActivities = new ArrayList<String>(Arrays.asList("obv unlocked", "Suggested species name",
+			"obv locked", "Agreed on species name", "Suggestion removed"));
+
+//	OBSERVATION ACTIVITY LIST
 	List<String> obvNullActivityList = new ArrayList<String>(
 			Arrays.asList("Observation created", "Observation updated", "Rated media resource", "Observation Deleted"));
 
@@ -89,18 +98,43 @@ public class ActivityServiceImpl implements ActivityService {
 	List<String> observationActivityList = new ArrayList<String>(Arrays.asList("Featured", "Suggestion removed",
 			"Observation tag updated", "Custom field edited", "UnFeatured", "Observation species group updated"));
 
+//	USERGROUP ACTIVITY LIST
+
 	List<String> ugNullActivityList = new ArrayList<String>(Arrays.asList("Group updated", "Group created"));
 
 	List<String> userGroupActivityList = new ArrayList<String>(Arrays.asList("Removed resoruce", "Posted resource"));
 
-	List<String> ugUserActivityList = new ArrayList<String>(
-			Arrays.asList("Joined group", "Left Group", "Role updated", "Invitation Sent", "Removed user","Requested Join"));
+	List<String> ugUserActivityList = new ArrayList<String>(Arrays.asList("Joined group", "Left Group", "Role updated",
+			"Invitation Sent", "Removed user", "Requested Join"));
 
 	List<String> ugCustomFieldActivityList = new ArrayList<String>(
 			Arrays.asList("Added Custom Field", "Removed Custom Field"));
 
 	List<String> ugFilterRuleActivityList = new ArrayList<String>(
 			Arrays.asList("Added Filter Rule", "Removed Filter Rule", "Disabled Filter Rule", "Enabled Filter Rule"));
+
+//	DOCUMENT ACTIVITY LIST 
+
+	List<String> docNullActivityList = new ArrayList<String>(
+			Arrays.asList("Document created", "Document updated", "Document Deleted"));
+
+	List<String> docFlagActivityList = new ArrayList<String>(Arrays.asList("Flag removed", "Flagged"));
+
+	List<String> docUserGroupActivityList = new ArrayList<String>(
+			Arrays.asList("Featured", "Posted resource", "Removed resoruce", "UnFeatured"));
+
+	List<String> documentActivityList = new ArrayList<String>(
+			Arrays.asList("Document tag updated", "Featured", "UnFeatured"));
+
+	List<String> docCommentActivityList = new ArrayList<String>(Arrays.asList("Added a comment"));
+
+	@Override
+	public Integer activityCount(String objectType, Long objectId) {
+		if (objectType.equalsIgnoreCase("observation"))
+			objectType = ActivityEnums.observation.getValue();
+		Integer count = activityDao.findActivityCountByObjectId(objectType, objectId);
+		return count;
+	}
 
 	@Override
 	public ActivityResult fetchActivityIbp(String objectType, Long objectId, String offset, String limit) {
@@ -135,11 +169,10 @@ public class ActivityServiceImpl implements ActivityService {
 						commentIbp = new CommentsIbp(reply.getBody());
 					}
 
-				} else if (obvUserGroupActivityList.contains(activity.getActivityType())) {
+				} else if (userGroupActivities.contains(activity.getActivityType())) {
 					String description = activity.getActivityDescription();
 					ugActivity = objectMapper.readValue(description, UserGroupActivity.class);
-				} else if (obvRecommendationActivityList.contains(activity.getActivityType())
-						|| activity.getActivityType().equalsIgnoreCase("Suggestion removed")) {
+				} else if (recoActivities.contains(activity.getActivityType())) {
 					String description = activity.getActivityDescription();
 					recoVoteActivity = objectMapper.readValue(description, RecoVoteActivity.class);
 
@@ -159,6 +192,8 @@ public class ActivityServiceImpl implements ActivityService {
 
 		return activityResult;
 	}
+
+//	OBSERVATION ACTIVITY LOGGING
 
 	@Override
 	public Activity logActivities(HttpServletRequest request, Long userId, ActivityLoggingData loggingData) {
@@ -213,13 +248,15 @@ public class ActivityServiceImpl implements ActivityService {
 			userService = headers.addUserHeader(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
 			if (loggingData.getMailData() != null) {
-				Map<String, Object> data = ActivityUtil.getMailType(activity.getActivityType(), loggingData); 
+				Map<String, Object> data = ActivityUtil.getMailType(activity.getActivityType(), loggingData);
 				type = (MAIL_TYPE) data.get("type");
 				if (type != null && type != MAIL_TYPE.COMMENT_POST) {
+					MailActivityData mailActivityData = new MailActivityData(loggingData.getActivityType(),
+							loggingData.getActivityDescription(), loggingData.getMailData());
 					mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
-							loggingData, null);
-					notificationSevice.sendNotification(loggingData, result.getRootHolderType(), result.getRootHolderId(),
-							"India Biodiversity Portal", data.get("text").toString());
+							mailActivityData, null);
+					notificationSevice.sendNotification(mailActivityData, result.getRootHolderType(),
+							result.getRootHolderId(), "India Biodiversity Portal", data.get("text").toString());
 				}
 			}
 
@@ -234,10 +271,12 @@ public class ActivityServiceImpl implements ActivityService {
 	@Override
 	public String sendObvCreateMail(Long userId, ActivityLoggingData loggingData) {
 		try {
+			MailActivityData mailActivityData = new MailActivityData(loggingData.getActivityType(),
+					loggingData.getActivityDescription(), loggingData.getMailData());
 			mailService.sendMail(MAIL_TYPE.OBSERVATION_ADDED, ActivityEnums.observation.getValue(),
-					loggingData.getRootObjectId(), userId, null, loggingData, null);
-			notificationSevice.sendNotification(loggingData, ActivityEnums.observation.getValue(), loggingData.getRootObjectId(),
-					"India Biodiversity Portal", "Observation created");
+					loggingData.getRootObjectId(), userId, null, mailActivityData, null);
+			notificationSevice.sendNotification(mailActivityData, ActivityEnums.observation.getValue(),
+					loggingData.getRootObjectId(), "India Biodiversity Portal", "Observation created");
 			return "Mail Sent";
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -246,7 +285,8 @@ public class ActivityServiceImpl implements ActivityService {
 	}
 
 	@Override
-	public Activity addComment(HttpServletRequest request, Long userId, CommentLoggingData commentData) {
+	public Activity addComment(HttpServletRequest request, Long userId, String commentType,
+			CommentLoggingData commentData) {
 
 		if (commentData.getSubRootHolderId() == null) {
 			commentData.setSubRootHolderId(commentData.getRootHolderId());
@@ -270,27 +310,52 @@ public class ActivityServiceImpl implements ActivityService {
 
 		Comments result = commentsDao.save(comment);
 
-		ActivityLoggingData activity = null;
-		if (result.getCommentHolderId().equals(result.getRootHolderId())) {
-			activity = new ActivityLoggingData(null, result.getRootHolderId(), result.getId(),
-					result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
-		} else {
-			activity = new ActivityLoggingData(null, result.getRootHolderId(), result.getCommentHolderId(),
-					result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
+		Activity activityResult = null;
+		if (commentType.equals("observation")) {
+			ActivityLoggingData activity = null;
+			if (result.getCommentHolderId().equals(result.getRootHolderId())) {
+				activity = new ActivityLoggingData(null, result.getRootHolderId(), result.getId(),
+						result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
+			} else {
+				activity = new ActivityLoggingData(null, result.getRootHolderId(), result.getCommentHolderId(),
+						result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
+			}
+			activityResult = logActivities(request, userId, activity);
+
+		} else if (commentType.equals("document")) {
+
+			DocumentActivityLogging loggingData = null;
+			if (result.getCommentHolderId().equals(result.getRootHolderId())) {
+				loggingData = new DocumentActivityLogging(null, result.getRootHolderId(), result.getId(),
+						result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
+
+			} else {
+				loggingData = new DocumentActivityLogging(null, result.getRootHolderId(), result.getCommentHolderId(),
+						result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
+			}
+
+			activityResult = logDocActivities(request, userId, loggingData);
 		}
-		Activity activityResult = logActivities(request, userId, activity);
-		List<TaggedUser> taggedUsers = ActivityUtil.getTaggedUsers(commentData.getBody());
-		if (taggedUsers.size() > 0) {
-			mailService.sendMail(MAIL_TYPE.TAGGED_MAIL, activityResult.getRootHolderType(),
-					activityResult.getRootHolderId(), userId, commentData, activity, taggedUsers);
+
+		if (activityResult != null) {
+			MailActivityData mailActivityData = new MailActivityData("Added a comment", null,
+					commentData.getMailData());
+			List<TaggedUser> taggedUsers = ActivityUtil.getTaggedUsers(commentData.getBody());
+			if (taggedUsers.size() > 0) {
+				mailService.sendMail(MAIL_TYPE.TAGGED_MAIL, activityResult.getRootHolderType(),
+						activityResult.getRootHolderId(), userId, commentData, mailActivityData, taggedUsers);
+			}
+			mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(),
+					activityResult.getRootHolderId(), userId, commentData, mailActivityData, taggedUsers);
+			notificationSevice.sendNotification(mailActivityData, result.getRootHolderType(), result.getRootHolderId(),
+					"India Biodiversity Portal", mailActivityData.getActivityType());
+
 		}
-		mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(),
-				activityResult.getRootHolderId(), userId, commentData, activity, taggedUsers);
-		notificationSevice.sendNotification(activity, result.getRootHolderType(), result.getRootHolderId(),
-				"India Biodiversity Portal", activity.getActivityType());
 
 		return activityResult;
 	}
+
+//	USERGROUP ACTIVITY LOGGING
 
 	@Override
 	public Activity logUGActivities(Long userId, UserGroupActivityLogging loggingData) {
@@ -332,12 +397,72 @@ public class ActivityServiceImpl implements ActivityService {
 		return activity;
 	}
 
+//	DOCUMENT ACTIVITY LOGGING
+
 	@Override
-	public Integer activityCount(String objectType, Long objectId) {
-		if (objectType.equalsIgnoreCase("observation"))
-			objectType = ActivityEnums.observation.getValue();
-		Integer count = activityDao.findActivityCountByObjectId(objectType, objectId);
-		return count;
+	public Activity logDocActivities(HttpServletRequest request, Long userId, DocumentActivityLogging loggingData) {
+		try {
+			Activity activity = null;
+			Boolean isUsergroupFeatured = false;
+
+			if (loggingData.getActivityType().equals("Featured")
+					|| loggingData.getActivityType().equals("UnFeatured")) {
+				String description = loggingData.getActivityDescription();
+				UserGroupActivity ugActivity = objectMapper.readValue(description, UserGroupActivity.class);
+				if (ugActivity.getUserGroupId() != null)
+					isUsergroupFeatured = true;
+			}
+
+			if (docNullActivityList.contains(loggingData.getActivityType())) {
+				activity = new Activity(null, 0L, null, null, null, null, loggingData.getActivityType(), userId,
+						new Date(), new Date(), loggingData.getRootObjectId(), ActivityEnums.document.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.document.getValue(), true, null);
+
+			} else if (docFlagActivityList.contains(loggingData.getActivityType())) {
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+						ActivityEnums.flag.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+						new Date(), loggingData.getRootObjectId(), ActivityEnums.document.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.document.getValue(), true, null);
+
+			} else if (docCommentActivityList.contains(loggingData.getActivityType())) {
+
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+						ActivityEnums.comments.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+						new Date(), loggingData.getRootObjectId(), ActivityEnums.document.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.comments.getValue(), true, null);
+
+			} else if (docUserGroupActivityList.contains(loggingData.getActivityType()) && isUsergroupFeatured) {
+
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+						ActivityEnums.userGroup.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+						new Date(), loggingData.getRootObjectId(), ActivityEnums.document.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.document.getValue(), true, null);
+
+			} else if (documentActivityList.contains(loggingData.getActivityType())) {
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+						ActivityEnums.document.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+						new Date(), loggingData.getRootObjectId(), ActivityEnums.document.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.document.getValue(), true, null);
+
+			}
+
+			if (activity != null)
+				activity = activityDao.save(activity);
+
+			try {
+				userService = headers.addUserHeader(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
+				userService.updateFollow("document", loggingData.getRootObjectId().toString());
+//				TODO add mail service for document
+
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+			return activity;
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return null;
 	}
 
 }

@@ -27,6 +27,7 @@ import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.CommentLoggingData;
+import com.strandls.activity.pojo.DocumentActivityLogging;
 import com.strandls.activity.pojo.UserGroupActivityLogging;
 import com.strandls.activity.service.ActivityService;
 import com.strandls.authentication_utility.filter.ValidateUser;
@@ -131,7 +132,7 @@ public class ActivityController {
 	}
 
 	@POST
-	@Path(ApiConstants.ADD + ApiConstants.COMMENT)
+	@Path(ApiConstants.ADD + ApiConstants.COMMENT + "/{commetType}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
@@ -141,13 +142,14 @@ public class ActivityController {
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to log a comment", response = String.class) })
 
 	public Response addComment(@Context HttpServletRequest request,
-			@ApiParam(name = "commentData") CommentLoggingData commentData) {
+			@ApiParam(name = "commentData") CommentLoggingData commentData,
+			@PathParam("commentType") String commentType) {
 		try {
 
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
 			if (commentData.getBody().trim().length() > 0) {
-				Activity result = service.addComment(request, userId, commentData);
+				Activity result = service.addComment(request, userId, commentType, commentData);
 				return Response.status(Status.OK).entity(result).build();
 			}
 			return Response.status(Status.NOT_ACCEPTABLE).entity("Blank Comment Not allowed").build();
@@ -174,6 +176,28 @@ public class ActivityController {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
 			Activity result = service.logUGActivities(userId, loggingData);
+			return Response.status(Status.OK).entity(result).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@POST
+	@Path(ApiConstants.LOG + ApiConstants.DOCUMENT)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "log document activities", notes = "Return the activity logged", response = Activity.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "unable to log the activity", response = String.class) })
+
+	public Response logDocumentActivity(@Context HttpServletRequest request,
+			@ApiParam(name = "loggingData") DocumentActivityLogging loggingData) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			Activity result = service.logDocActivities(request, userId, loggingData);
 			return Response.status(Status.OK).entity(result).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
