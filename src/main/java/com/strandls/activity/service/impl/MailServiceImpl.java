@@ -114,11 +114,11 @@ public class MailServiceImpl implements MailService {
 					User follower = userService.getUser(String.valueOf(user.getId()));
 					Recipients recipient = new Recipients();
 					recipient.setId(follower.getId());
+					recipient.setIsSubscribed(follower.getSendNotification());
 					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
 							observation, groups, linkTaggedUsers);
 					if (follower.getEmail() != null && !follower.getEmail().isEmpty()
-							&& !follower.getEmail().contains("@ibp.org") && follower.getSendNotification() != null
-							&& follower.getSendNotification()) {
+							&& !follower.getEmail().contains("@ibp.org")) {
 						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 								JsonUtil.mapToJSON(data));
 					}
@@ -129,17 +129,12 @@ public class MailServiceImpl implements MailService {
 					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
 							observation, groups, linkTaggedUsers);
 					if (recipient.getEmail() != null && !recipient.getEmail().isEmpty()
-							&& !recipient.getEmail().contains("@ibp.org") && recipient.getIsSubscribed() != null
-							&& recipient.getIsSubscribed()) {
+							&& !recipient.getEmail().contains("@ibp.org")) {
 						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 								JsonUtil.mapToJSON(data));
 					}
 				}
 			}
-			String admins = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc");
-			data.put(FIELDS.TO.getAction(), admins.split(","));
-			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-					JsonUtil.mapToJSON(data));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			logger.error(ex.getMessage());
@@ -153,6 +148,7 @@ public class MailServiceImpl implements MailService {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), type.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { recipient.getEmail() });
+		data.put(FIELDS.SUBSCRIPTION.getAction(), recipient.getIsSubscribed());
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put(COMMENT_POST.TYPE.getAction(), type.getAction());
 		model.put(COMMENT_POST.SITENAME.getAction(), siteName);
