@@ -158,7 +158,7 @@ public class MailServiceImpl implements MailService {
 			model.put(COMMENT_POST.COMMENT_BODY.getAction(), modifiedComment);
 		}
 
-		if (type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED
+		if (type == MAIL_TYPE.FACT_ADDED || type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED
 				|| type == MAIL_TYPE.OBSERVATION_FLAGGED) {
 			model.put(COMMENT_POST.COMMENT_BODY.getAction(), ActivityUtil.replaceFlaggedMessage(activity.getActivityDescription()));
 		} else if (type == MAIL_TYPE.FEATURED_POST || type == MAIL_TYPE.FEATURED_POST_IBP) {
