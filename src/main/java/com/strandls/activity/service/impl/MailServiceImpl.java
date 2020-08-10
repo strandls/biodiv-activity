@@ -138,6 +138,7 @@ public class MailServiceImpl implements MailService {
 			Map<String, Object> mailData = new HashMap<String, Object>();
 			mailData.put(INFO_FIELDS.TYPE.getAction(), type.getAction());
 			mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), mailDataList);
+			System.out.println("\n\n ***** \n\n" + mailData + "\n\n ***** \n\n");
 			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 					JsonUtil.mapToJSON(mailData));
 		} catch (Exception ex) {
