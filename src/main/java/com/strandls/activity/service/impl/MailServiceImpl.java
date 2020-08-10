@@ -26,6 +26,7 @@ import com.strandls.activity.service.MailService;
 import com.strandls.activity.util.ActivityUtil;
 import com.strandls.mail_utility.model.EnumModel.COMMENT_POST;
 import com.strandls.mail_utility.model.EnumModel.FIELDS;
+import com.strandls.mail_utility.model.EnumModel.INFO_FIELDS;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 import com.strandls.mail_utility.model.EnumModel.POST_TO_GROUP;
 import com.strandls.mail_utility.model.EnumModel.SUGGEST_MAIL;
@@ -109,6 +110,7 @@ public class MailServiceImpl implements MailService {
 			if (type == MAIL_TYPE.COMMENT_POST && taggedUsers != null) {
 				linkTaggedUsers = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody(), true);
 			}
+			List<Map<String, Object>> mailDataList = new ArrayList<>();
 			if (type == MAIL_TYPE.TAGGED_MAIL && taggedUsers != null && taggedUsers.size() > 0) {
 				for (TaggedUser user : taggedUsers) {
 					User follower = userService.getUser(String.valueOf(user.getId()));
@@ -119,8 +121,7 @@ public class MailServiceImpl implements MailService {
 							observation, groups, linkTaggedUsers);
 					if (follower.getEmail() != null && !follower.getEmail().isEmpty()
 							&& !follower.getEmail().contains("@ibp.org")) {
-						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-								JsonUtil.mapToJSON(data));
+						mailDataList.add(data);
 					}
 				}
 			} else {
@@ -130,11 +131,15 @@ public class MailServiceImpl implements MailService {
 							observation, groups, linkTaggedUsers);
 					if (recipient.getEmail() != null && !recipient.getEmail().isEmpty()
 							&& !recipient.getEmail().contains("@ibp.org")) {
-						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-								JsonUtil.mapToJSON(data));
+						mailDataList.add(data);
 					}
 				}
 			}
+			Map<String, Object> mailData = new HashMap<String, Object>();
+			mailData.put(INFO_FIELDS.TYPE.getAction(), type.getAction());
+			mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), mailDataList);
+			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+					JsonUtil.mapToJSON(mailData));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			logger.error(ex.getMessage());
