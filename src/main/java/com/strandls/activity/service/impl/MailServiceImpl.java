@@ -135,6 +135,7 @@ public class MailServiceImpl implements MailService {
 					}
 				}
 			}
+			System.out.println("\n\n ***** \n\n" + mailDataList + "\n\n ***** \n\n");
 			Map<String, Object> mailData = new HashMap<String, Object>();
 			mailData.put(INFO_FIELDS.TYPE.getAction(), type.getAction());
 			mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), mailDataList);
