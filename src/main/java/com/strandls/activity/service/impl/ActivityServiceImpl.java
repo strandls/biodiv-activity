@@ -164,6 +164,7 @@ public class ActivityServiceImpl implements ActivityService {
 	public Activity logActivities(HttpServletRequest request, Long userId, ActivityLoggingData loggingData) {
 		Activity activity = null;
 		MAIL_TYPE type = null;
+		System.out.println(loggingData.getActivityType());
 		if (obvNullActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, null, null, null, null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
