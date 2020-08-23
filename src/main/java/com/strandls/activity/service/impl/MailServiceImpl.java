@@ -66,6 +66,7 @@ public class MailServiceImpl implements MailService {
 	@Override
 	public void sendMail(MAIL_TYPE type, String objectType, Long objectId, Long userId, CommentLoggingData comment,
 			ActivityLoggingData activity, List<TaggedUser> taggedUsers) {
+				System.out.println("\n\n***** SendMail Starts *****\n\n");
 		try {
 			List<Recipients> recipientsList = userService.getRecipients(objectType, objectId);
 			observationMailData observation = activity.getMailData().getObservationData();
@@ -86,23 +87,6 @@ public class MailServiceImpl implements MailService {
 			}
 			if (userGroupActivityList.contains(activity.getActivityType())) {
 				userGroup = mapper.readValue(activity.getActivityDescription(), UserGroupActivity.class);
-				System.out.println("***** UserGroup ***** " + userGroup.getUserGroupName());
-			}
-
-			System.out.println("INSIDE MAIL SERVICE IMPL");
-
-			if (groups == null) {
-				System.out.println();
-				System.out.println("NULL IN GROUPS");
-				System.out.println();
-			}
-
-			if (groups != null && groups.size() > 0) {
-				for (UserGroupMailData mailData : groups) {
-					System.out.println("***** GroupFromAPI *****" + mailData.toString());
-				}
-			} else {
-				System.out.println("***** Groups Empty *****");
 			}
 
 			Map<String, Object> data = null;
@@ -146,6 +130,7 @@ public class MailServiceImpl implements MailService {
 			ex.printStackTrace();
 			logger.error(ex.getMessage());
 		}
+				System.out.println("\n\n***** SendMail Ends *****\n\n");
 	}
 
 	private Map<String, Object> prepareMailData(MAIL_TYPE type, Recipients recipient, User follower, User who,
