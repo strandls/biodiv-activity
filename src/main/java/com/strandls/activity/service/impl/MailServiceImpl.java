@@ -218,6 +218,7 @@ public class MailServiceImpl implements MailService {
 		model.put(POST_TO_GROUP.SUBMIT_TYPE.getAction(),
 				activity.getActivityType().toLowerCase().contains("post") ? "post" : "");
 		data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
+		System.out.println(data);
 		System.out.println("\n\n***** PrepareMailData Ends *****\n\n");
 		return data;
 	}
