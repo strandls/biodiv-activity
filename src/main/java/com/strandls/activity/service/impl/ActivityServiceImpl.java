@@ -214,6 +214,7 @@ public class ActivityServiceImpl implements ActivityService {
 			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
 			if (loggingData.getMailData() != null) {
 				Map<String, Object> data = ActivityUtil.getMailType(activity.getActivityType(), loggingData); 
+				System.out.println("\n\n***** Activity Type Data: " + data + " *****\n\n");
 				type = (MAIL_TYPE) data.get("type");
 				if (type != null && type != MAIL_TYPE.COMMENT_POST) {
 					mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
