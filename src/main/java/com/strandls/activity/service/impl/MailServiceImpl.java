@@ -152,6 +152,7 @@ public class MailServiceImpl implements MailService {
 			RecoVoteActivity reco, UserGroupActivity userGroup, ActivityLoggingData activity,
 			CommentLoggingData comment, String name, observationMailData observation, List<UserGroupMailData> groups,
 			String modifiedComment) {
+				System.out.println("\n\n***** PrepareMailData Starts *****\n\n");
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), type.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { recipient.getEmail() });
@@ -217,6 +218,7 @@ public class MailServiceImpl implements MailService {
 		model.put(POST_TO_GROUP.SUBMIT_TYPE.getAction(),
 				activity.getActivityType().toLowerCase().contains("post") ? "post" : "");
 		data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
+		System.out.println("\n\n***** PrepareMailData Ends *****\n\n");
 		return data;
 	}
 }
