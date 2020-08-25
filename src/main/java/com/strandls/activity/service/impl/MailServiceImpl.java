@@ -26,6 +26,7 @@ import com.strandls.activity.service.MailService;
 import com.strandls.activity.util.ActivityUtil;
 import com.strandls.mail_utility.model.EnumModel.COMMENT_POST;
 import com.strandls.mail_utility.model.EnumModel.FIELDS;
+import com.strandls.mail_utility.model.EnumModel.INFO_FIELDS;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 import com.strandls.mail_utility.model.EnumModel.POST_TO_GROUP;
 import com.strandls.mail_utility.model.EnumModel.SUGGEST_MAIL;
@@ -109,18 +110,18 @@ public class MailServiceImpl implements MailService {
 			if (type == MAIL_TYPE.COMMENT_POST && taggedUsers != null) {
 				linkTaggedUsers = ActivityUtil.linkTaggedUsersProfile(taggedUsers, comment.getBody(), true);
 			}
+			List<Map<String, Object>> mailDataList = new ArrayList<>();
 			if (type == MAIL_TYPE.TAGGED_MAIL && taggedUsers != null && taggedUsers.size() > 0) {
 				for (TaggedUser user : taggedUsers) {
 					User follower = userService.getUser(String.valueOf(user.getId()));
 					Recipients recipient = new Recipients();
 					recipient.setId(follower.getId());
+					recipient.setIsSubscribed(follower.getSendNotification());
 					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
 							observation, groups, linkTaggedUsers);
 					if (follower.getEmail() != null && !follower.getEmail().isEmpty()
-							&& !follower.getEmail().contains("@ibp.org") && follower.getSendNotification() != null
-							&& follower.getSendNotification()) {
-						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-								JsonUtil.mapToJSON(data));
+							&& !follower.getEmail().contains("@ibp.org")) {
+						mailDataList.add(data);
 					}
 				}
 			} else {
@@ -129,17 +130,17 @@ public class MailServiceImpl implements MailService {
 					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
 							observation, groups, linkTaggedUsers);
 					if (recipient.getEmail() != null && !recipient.getEmail().isEmpty()
-							&& !recipient.getEmail().contains("@ibp.org") && recipient.getIsSubscribed() != null
-							&& recipient.getIsSubscribed()) {
-						producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-								JsonUtil.mapToJSON(data));
+							&& !recipient.getEmail().contains("@ibp.org")) {
+						mailDataList.add(data);
 					}
 				}
 			}
-			String admins = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc");
-			data.put(FIELDS.TO.getAction(), admins.split(","));
+			Map<String, Object> mailData = new HashMap<String, Object>();
+			mailData.put(INFO_FIELDS.TYPE.getAction(), type.getAction());
+			mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), mailDataList);
+			System.out.println("\n\n ***** \n\n" + mailData + "\n\n ***** \n\n");
 			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-					JsonUtil.mapToJSON(data));
+					JsonUtil.mapToJSON(mailData));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			logger.error(ex.getMessage());
@@ -153,6 +154,7 @@ public class MailServiceImpl implements MailService {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), type.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { recipient.getEmail() });
+		data.put(FIELDS.SUBSCRIPTION.getAction(), recipient.getIsSubscribed());
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put(COMMENT_POST.TYPE.getAction(), type.getAction());
 		model.put(COMMENT_POST.SITENAME.getAction(), siteName);
@@ -162,7 +164,7 @@ public class MailServiceImpl implements MailService {
 			model.put(COMMENT_POST.COMMENT_BODY.getAction(), modifiedComment);
 		}
 
-		if (type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED
+		if (type == MAIL_TYPE.FACT_ADDED || type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED
 				|| type == MAIL_TYPE.OBSERVATION_FLAGGED) {
 			model.put(COMMENT_POST.COMMENT_BODY.getAction(), ActivityUtil.replaceFlaggedMessage(activity.getActivityDescription()));
 		} else if (type == MAIL_TYPE.FEATURED_POST || type == MAIL_TYPE.FEATURED_POST_IBP) {
