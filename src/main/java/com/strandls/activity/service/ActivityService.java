@@ -9,6 +9,7 @@ import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.ActivityResult;
 import com.strandls.activity.pojo.CommentLoggingData;
+import com.strandls.activity.pojo.DocumentActivityLogging;
 import com.strandls.activity.pojo.UserGroupActivityLogging;
 
 /**
@@ -21,11 +22,14 @@ public interface ActivityService {
 
 	public Activity logActivities(HttpServletRequest request, Long userId, ActivityLoggingData loggingData);
 
-	public Activity addComment(HttpServletRequest request, Long userId, CommentLoggingData commentData);
+	public Activity addComment(HttpServletRequest request, Long userId, String commentType,
+			CommentLoggingData commentData);
 
 	public String sendObvCreateMail(Long userid, ActivityLoggingData loggingData);
 
 	public Activity logUGActivities(Long userId, UserGroupActivityLogging loggingData);
+
+	public Activity logDocActivities(HttpServletRequest request, Long userId, DocumentActivityLogging loggingData);
 
 	public Integer activityCount(String objectType, Long objectId);
 

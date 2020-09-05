@@ -5,6 +5,7 @@ import java.util.List;
 public class MailData {
 
 	private observationMailData observationData;
+	private DocumentMailData documentMailData;
 	private List<UserGroupMailData> userGroupData;
 
 	/**
@@ -16,11 +17,14 @@ public class MailData {
 
 	/**
 	 * @param observationData
+	 * @param documentMailData
 	 * @param userGroupData
 	 */
-	public MailData(observationMailData observationData, List<UserGroupMailData> userGroupData) {
+	public MailData(observationMailData observationData, DocumentMailData documentMailData,
+			List<UserGroupMailData> userGroupData) {
 		super();
 		this.observationData = observationData;
+		this.documentMailData = documentMailData;
 		this.userGroupData = userGroupData;
 	}
 
@@ -30,6 +34,14 @@ public class MailData {
 
 	public void setObservationData(observationMailData observationData) {
 		this.observationData = observationData;
+	}
+
+	public DocumentMailData getDocumentMailData() {
+		return documentMailData;
+	}
+
+	public void setDocumentMailData(DocumentMailData documentMailData) {
+		this.documentMailData = documentMailData;
 	}
 
 	public List<UserGroupMailData> getUserGroupData() {

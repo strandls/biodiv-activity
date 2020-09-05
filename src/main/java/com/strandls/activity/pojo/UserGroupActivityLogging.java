@@ -13,7 +13,6 @@ public class UserGroupActivityLogging extends CoreActivityLoggingData {
 	 * 
 	 */
 	public UserGroupActivityLogging() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -27,7 +26,6 @@ public class UserGroupActivityLogging extends CoreActivityLoggingData {
 	public UserGroupActivityLogging(String activityDescription, Long rootObjectId, Long subRootObjectId,
 			String rootObjectType, Long activityId, String activityType) {
 		super(activityDescription, rootObjectId, subRootObjectId, rootObjectType, activityId, activityType);
-		// TODO Auto-generated constructor stub
 	}
 
 }
