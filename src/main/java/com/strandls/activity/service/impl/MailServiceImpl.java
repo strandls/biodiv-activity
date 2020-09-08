@@ -103,8 +103,7 @@ public class MailServiceImpl implements MailService {
 					recipient.setIsSubscribed(follower.getSendNotification());
 					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
 							observation, groups, linkTaggedUsers);
-					if (follower.getEmail() != null && !follower.getEmail().isEmpty()
-							&& !follower.getEmail().contains("@ibp.org")) {
+					if (follower.getEmail() != null && !follower.getEmail().isEmpty()) {
 						mailDataList.add(data);
 					}
 				}
@@ -113,8 +112,7 @@ public class MailServiceImpl implements MailService {
 					User follower = userService.getUser(String.valueOf(recipient.getId()));
 					data = prepareMailData(type, recipient, follower, who, reco, userGroup, activity, comment, name,
 							observation, groups, linkTaggedUsers);
-					if (recipient.getEmail() != null && !recipient.getEmail().isEmpty()
-							&& !recipient.getEmail().contains("@ibp.org")) {
+					if (recipient.getEmail() != null && !recipient.getEmail().isEmpty()) {
 						mailDataList.add(data);
 					}
 				}
