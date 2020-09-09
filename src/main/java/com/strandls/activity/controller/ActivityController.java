@@ -3,6 +3,7 @@
  */
 package com.strandls.activity.controller;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -19,9 +20,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.pac4j.core.profile.CommonProfile;
 
-import javax.inject.Inject;
-
-import com.strandls.activity.ActivityEnums;
 import com.strandls.activity.ApiConstants;
 import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.ActivityLoggingData;
@@ -70,8 +68,6 @@ public class ActivityController {
 			@DefaultValue(value = "0") @QueryParam("offset") String offset,
 			@DefaultValue(value = "10") @QueryParam("limit") String limit) {
 		try {
-			if (objectType.equalsIgnoreCase("observation"))
-				objectType = ActivityEnums.observation.getValue();
 			Long id = Long.parseLong(objectId);
 			ActivityResult activityResult = service.fetchActivityIbp(objectType, id, offset, limit);
 			return Response.status(Status.OK).entity(activityResult).build();
