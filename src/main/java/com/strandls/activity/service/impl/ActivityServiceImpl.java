@@ -139,6 +139,13 @@ public class ActivityServiceImpl implements ActivityService {
 	@Override
 	public ActivityResult fetchActivityIbp(String objectType, Long objectId, String offset, String limit) {
 
+		if (objectType.equalsIgnoreCase("observation"))
+			objectType = ActivityEnums.observation.getValue();
+		else if (objectType.equalsIgnoreCase("document"))
+			objectType = ActivityEnums.document.getValue();
+		else if(objectType.equalsIgnoreCase("usergroup"))
+			objectType = ActivityEnums.userGroup.getValue();
+
 		List<ShowActivityIbp> ibpActivity = new ArrayList<ShowActivityIbp>();
 		Integer commentCount = 0;
 		ActivityResult activityResult = null;
