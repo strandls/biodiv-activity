@@ -128,7 +128,7 @@ public class ActivityController {
 	}
 
 	@POST
-	@Path(ApiConstants.ADD + ApiConstants.COMMENT + "/{commetType}")
+	@Path(ApiConstants.ADD + ApiConstants.COMMENT + "/{commentType}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
