@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 import com.rabbitmq.client.Channel;
 import com.strandls.activity.RabbitMqConnection;
-import com.strandls.activity.pojo.ActivityLoggingData;
+import com.strandls.activity.pojo.MailActivityData;
 import com.strandls.activity.pojo.observationMailData;
 import com.strandls.activity.service.NotificationService;
 import com.strandls.mail_utility.model.EnumModel.NOTIFICATION_DATA;
@@ -27,7 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
 	private UserServiceApi userService;
 
 	@Override
-	public void sendNotification(ActivityLoggingData activity, String objectType, Long objectId, String title,
+	public void sendNotification(MailActivityData activity, String objectType, Long objectId, String title,
 			String content) {
 		try {
 			String resourceUrl = PropertyFileUtil.fetchProperty("config.properties", "pn_resource_url");
@@ -45,7 +45,8 @@ public class NotificationServiceImpl implements NotificationService {
 			Map<String, Object> notification = new HashMap<String, Object>();
 			notification.put(NOTIFICATION_DATA.TITLE.getAction(), title);
 			notification.put(NOTIFICATION_DATA.BODY.getAction(), content);
-			notification.put(NOTIFICATION_DATA.CLICK_ACTION.getAction(), "/observation/show/" + observation.getObservationId());
+			notification.put(NOTIFICATION_DATA.CLICK_ACTION.getAction(),
+					"/observation/show/" + observation.getObservationId());
 			if (!image.isEmpty()) {
 				notification.put(NOTIFICATION_DATA.ICON.getAction(), resourceUrl + image);
 			}

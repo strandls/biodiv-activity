@@ -8,15 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javax.inject.Inject;
-
 import com.strandls.activity.RabbitMqConnection;
-import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.CommentLoggingData;
+import com.strandls.activity.pojo.MailActivityData;
 import com.strandls.activity.pojo.RecoVoteActivity;
 import com.strandls.activity.pojo.TaggedUser;
 import com.strandls.activity.pojo.UserGroupActivity;
@@ -65,7 +65,7 @@ public class MailServiceImpl implements MailService {
 
 	@Override
 	public void sendMail(MAIL_TYPE type, String objectType, Long objectId, Long userId, CommentLoggingData comment,
-			ActivityLoggingData activity, List<TaggedUser> taggedUsers) {
+			MailActivityData activity, List<TaggedUser> taggedUsers) {
 		try {
 			List<Recipients> recipientsList = userService.getRecipients(objectType, objectId);
 			observationMailData observation = activity.getMailData().getObservationData();
@@ -146,9 +146,8 @@ public class MailServiceImpl implements MailService {
 	}
 
 	private Map<String, Object> prepareMailData(MAIL_TYPE type, Recipients recipient, User follower, User who,
-			RecoVoteActivity reco, UserGroupActivity userGroup, ActivityLoggingData activity,
-			CommentLoggingData comment, String name, observationMailData observation, List<UserGroupMailData> groups,
-			String modifiedComment) {
+			RecoVoteActivity reco, UserGroupActivity userGroup, MailActivityData activity, CommentLoggingData comment,
+			String name, observationMailData observation, List<UserGroupMailData> groups, String modifiedComment) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), type.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { recipient.getEmail() });
@@ -164,7 +163,8 @@ public class MailServiceImpl implements MailService {
 
 		if (type == MAIL_TYPE.FACT_ADDED || type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED
 				|| type == MAIL_TYPE.OBSERVATION_FLAGGED) {
-			model.put(COMMENT_POST.COMMENT_BODY.getAction(), ActivityUtil.replaceFlaggedMessage(activity.getActivityDescription()));
+			model.put(COMMENT_POST.COMMENT_BODY.getAction(),
+					ActivityUtil.replaceFlaggedMessage(activity.getActivityDescription()));
 		} else if (type == MAIL_TYPE.FEATURED_POST || type == MAIL_TYPE.FEATURED_POST_IBP) {
 			model.put(COMMENT_POST.COMMENT_BODY.getAction(), userGroup.getFeatured());
 		}
