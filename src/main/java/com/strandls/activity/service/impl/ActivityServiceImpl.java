@@ -33,6 +33,7 @@ import com.strandls.activity.pojo.MailActivityData;
 import com.strandls.activity.pojo.MyJson;
 import com.strandls.activity.pojo.RecoVoteActivity;
 import com.strandls.activity.pojo.ShowActivityIbp;
+import com.strandls.activity.pojo.SpeciesActivityLogging;
 import com.strandls.activity.pojo.TaggedUser;
 import com.strandls.activity.pojo.UserGroupActivity;
 import com.strandls.activity.pojo.UserGroupActivityLogging;
@@ -128,6 +129,27 @@ public class ActivityServiceImpl implements ActivityService {
 
 	List<String> docCommentActivityList = new ArrayList<String>(Arrays.asList("Added a comment"));
 
+//	SPECIES ACTIVITY LIST
+
+	List<String> speciesNullActivityList = new ArrayList<String>(Arrays.asList("Created species", "Added synonym",
+			"Updated synonym", "Deleted synonym", "Added common name", "Updated common name", "Deleted common name"));
+
+	List<String> speciesActivityList = new ArrayList<String>(
+			Arrays.asList("Featured", "UnFeatured", "Updated species gallery"));
+
+	List<String> speciesFieldActivityList = new ArrayList<String>(
+			Arrays.asList("Added species field", "Updated species field", "Deleted species field"));
+
+	List<String> speciesTaxonomyActivityList = new ArrayList<String>(
+			Arrays.asList("Added hierarchy", "Deleted hierarchy"));
+
+	List<String> speciesTraitActivityList = new ArrayList<String>(Arrays.asList("Added a fact", "Updated fact"));
+
+	List<String> speciesCommentActivityList = new ArrayList<String>(Arrays.asList("Added a comment"));
+
+	List<String> speciesUserGroupActivityList = new ArrayList<String>(
+			Arrays.asList("Featured", "UnFeatured", "Posted resource", "Removed resoruce"));
+
 	@Override
 	public Integer activityCount(String objectType, Long objectId) {
 		if (objectType.equalsIgnoreCase("observation"))
@@ -143,7 +165,7 @@ public class ActivityServiceImpl implements ActivityService {
 			objectType = ActivityEnums.observation.getValue();
 		else if (objectType.equalsIgnoreCase("document"))
 			objectType = ActivityEnums.document.getValue();
-		else if(objectType.equalsIgnoreCase("usergroup"))
+		else if (objectType.equalsIgnoreCase("usergroup"))
 			objectType = ActivityEnums.userGroup.getValue();
 
 		List<ShowActivityIbp> ibpActivity = new ArrayList<ShowActivityIbp>();
@@ -206,6 +228,11 @@ public class ActivityServiceImpl implements ActivityService {
 	public Activity logActivities(HttpServletRequest request, Long userId, ActivityLoggingData loggingData) {
 		Activity activity = null;
 		MAIL_TYPE type = null;
+
+		Boolean isUsergroupFeatured = false;
+		isUsergroupFeatured = checkUserGroupFeatured(loggingData.getActivityType(),
+				loggingData.getActivityDescription());
+
 		if (obvNullActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, null, null, null, null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
@@ -217,7 +244,7 @@ public class ActivityServiceImpl implements ActivityService {
 					ActivityEnums.recommendationVote.getValue(), null, loggingData.getActivityType(), userId,
 					new Date(), new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
-		} else if (obvUserGroupActivityList.contains(loggingData.getActivityType())) {
+		} else if (obvUserGroupActivityList.contains(loggingData.getActivityType()) && isUsergroupFeatured) {
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 					ActivityEnums.userGroup.getValue(), null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
@@ -411,14 +438,8 @@ public class ActivityServiceImpl implements ActivityService {
 		try {
 			Activity activity = null;
 			Boolean isUsergroupFeatured = false;
-
-			if (loggingData.getActivityType().equals("Featured")
-					|| loggingData.getActivityType().equals("UnFeatured")) {
-				String description = loggingData.getActivityDescription();
-				UserGroupActivity ugActivity = objectMapper.readValue(description, UserGroupActivity.class);
-				if (ugActivity.getUserGroupId() != null)
-					isUsergroupFeatured = true;
-			}
+			isUsergroupFeatured = checkUserGroupFeatured(loggingData.getActivityType(),
+					loggingData.getActivityDescription());
 
 			if (docNullActivityList.contains(loggingData.getActivityType())) {
 				activity = new Activity(null, 0L, null, null, null, null, loggingData.getActivityType(), userId,
@@ -439,7 +460,6 @@ public class ActivityServiceImpl implements ActivityService {
 						loggingData.getSubRootObjectId(), ActivityEnums.comments.getValue(), true, null);
 
 			} else if (docUserGroupActivityList.contains(loggingData.getActivityType()) && isUsergroupFeatured) {
-
 				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 						ActivityEnums.userGroup.getValue(), null, loggingData.getActivityType(), userId, new Date(),
 						new Date(), loggingData.getRootObjectId(), ActivityEnums.document.getValue(),
@@ -472,4 +492,80 @@ public class ActivityServiceImpl implements ActivityService {
 		return null;
 	}
 
+	@Override
+	public Activity logSpeciesActivities(HttpServletRequest request, Long userId, SpeciesActivityLogging loggingData) {
+		try {
+
+			Activity activity = null;
+			Boolean isUsergroupFeatured = false;
+
+			isUsergroupFeatured = checkUserGroupFeatured(loggingData.getActivityType(),
+					loggingData.getActivityDescription());
+
+			if (speciesNullActivityList.contains(loggingData.getActivityType())) {
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), null, null, null,
+						loggingData.getActivityType(), userId, new Date(), new Date(), loggingData.getRootObjectId(),
+						ActivityEnums.species.getValue(), loggingData.getSubRootObjectId(),
+						ActivityEnums.species.getValue(), true, null);
+			} else if (speciesFieldActivityList.contains(loggingData.getActivityType())) {
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+						ActivityEnums.speciesField.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+						new Date(), loggingData.getRootObjectId(), ActivityEnums.species.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.species.getValue(), true, null);
+			} else if (speciesTaxonomyActivityList.contains(loggingData.getActivityType())) {
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+						ActivityEnums.taxonomyRegistry.getValue(), null, loggingData.getActivityType(), userId,
+						new Date(), new Date(), loggingData.getRootObjectId(), ActivityEnums.species.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.species.getValue(), true, null);
+			} else if (speciesUserGroupActivityList.contains(loggingData.getActivityType()) && isUsergroupFeatured) {
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+						ActivityEnums.userGroup.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+						new Date(), loggingData.getRootObjectId(), ActivityEnums.species.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.species.getValue(), true, null);
+			} else if (speciesTraitActivityList.contains(loggingData.getActivityType())) {
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+						ActivityEnums.facts.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+						new Date(), loggingData.getRootObjectId(), ActivityEnums.species.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.species.getValue(), true, null);
+			} else if (speciesCommentActivityList.contains(loggingData.getActivityType())) {
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+						ActivityEnums.comments.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+						new Date(), loggingData.getRootObjectId(), ActivityEnums.species.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.comments.getValue(), true, null);
+			} else if (speciesActivityList.contains(loggingData.getActivityType())) {
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+						ActivityEnums.species.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+						new Date(), loggingData.getRootObjectId(), ActivityEnums.species.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.species.getValue(), true, null);
+			}
+
+			if (activity != null)
+				activity = activityDao.save(activity);
+
+//			TODO mailData integration
+
+			return activity;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return null;
+	}
+
+//	check if its a usergroup featuring or mother portal featuring and also if its usergroup activity
+	private Boolean checkUserGroupFeatured(String acitivityType, String description) {
+		try {
+			if (acitivityType.equals("Featured") || acitivityType.equals("UnFeatured")) {
+				UserGroupActivity ugActivity = objectMapper.readValue(description, UserGroupActivity.class);
+				if (ugActivity.getUserGroupId() != null)
+					return true;
+				return false;
+			}
+			if (acitivityType.equals("Posted resource") || acitivityType.equals("Removed resoruce"))
+				return true;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return false;
+
+	}
 }
