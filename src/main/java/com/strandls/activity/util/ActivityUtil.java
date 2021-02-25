@@ -1,6 +1,7 @@
 package com.strandls.activity.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,18 +19,18 @@ import com.strandls.activity.service.impl.PropertyFileUtil;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 
 public class ActivityUtil {
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(ActivityUtil.class);
-	
+
 	private static final String TAGGED_USER_REGEX = "@\\[(.*?)\\]\\(\\d+\\)";
-	
+
 	private static final Map<String, String> flaggedMessages = new HashMap<String, String>();
-	
+
 	static {
 		flaggedMessages.put("DETAILS_INAPPROPRIATE", "Details Inapppropriate");
 		flaggedMessages.put("LOCATION_INAPPROPRIATE", "Location Inapppropriate");
 		flaggedMessages.put("DATE_INAPPROPRIATE", "Date Inapppropriate");
-	}	
+	}
 
 	public static List<TaggedUser> getTaggedUsers(String comment) {
 		List<TaggedUser> users = new ArrayList<TaggedUser>();
@@ -42,24 +43,25 @@ public class ActivityUtil {
 				user.setName(match.substring(match.indexOf("[") + 1, match.lastIndexOf("]")));
 				user.setId(Long.parseLong(match.substring(match.indexOf("(") + 1, match.lastIndexOf(")"))));
 				users.add(user);
-			}			
+			}
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 		}
 		return users;
 	}
-	
+
 	public static String linkTaggedUsersProfile(List<TaggedUser> users, String commentBody, boolean withURL) {
 		String comment = commentBody;
 		try {
-			for (TaggedUser user: users) {
+			for (TaggedUser user : users) {
 				String taggedUserLink = null;
 				if (withURL) {
 					taggedUserLink = "<a href=\"*$URL$*\" target=\"_blank\">*$NAME$*</a>";
-					String url = PropertyFileUtil.fetchProperty("config.properties", "portalAddress") + "/user/show/" + user.getId();
+					String url = PropertyFileUtil.fetchProperty("config.properties", "portalAddress") + "/user/show/"
+							+ user.getId();
 					taggedUserLink = taggedUserLink.replace("*$URL$*", url);
 				} else {
-					taggedUserLink = "*$NAME$*";					
+					taggedUserLink = "*$NAME$*";
 				}
 				taggedUserLink = taggedUserLink.replace("*$NAME$*", user.getName());
 				comment = comment.replaceFirst(TAGGED_USER_REGEX, taggedUserLink);
@@ -69,9 +71,9 @@ public class ActivityUtil {
 		}
 		return comment;
 	}
-	
+
 	public static String replaceFlaggedMessage(String message) {
-		for (Map.Entry<String, String> m: flaggedMessages.entrySet()) {
+		for (Map.Entry<String, String> m : flaggedMessages.entrySet()) {
 			if (message.contains(m.getKey())) {
 				message = message.replaceAll(m.getKey(), m.getValue());
 			}
@@ -84,11 +86,15 @@ public class ActivityUtil {
 		System.out.println("\n\n ***** " + activity + " " + loggingData.getActivityDescription() + " *****\n\n");
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			UserGroupActivity data = mapper.readValue(loggingData.getActivityDescription(), UserGroupActivity.class);
-			featuredToIBP = (data.getUserGroupId() == null);
+			List<String> ugActivity = Arrays.asList("Featured", "UnFeatured");
+			if (ugActivity.contains(loggingData.getActivityType())) {
+				UserGroupActivity data = mapper.readValue(loggingData.getActivityDescription(),
+						UserGroupActivity.class);
+				featuredToIBP = (data.getUserGroupId() == null);
+			}
+
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			logger.error(ex.getMessage());	
+			logger.error(ex.getMessage());
 		}
 		Map<String, Object> data = new HashMap<String, Object>();
 		switch (activity) {
@@ -131,7 +137,7 @@ public class ActivityUtil {
 		case "Added a fact":
 			data.put("type", MAIL_TYPE.FACT_ADDED);
 			data.put("text", "Added a fact");
-			break;			
+			break;
 		case "Updated fact":
 			data.put("type", MAIL_TYPE.FACT_UPDATED);
 			data.put("text", "Updated fact");
@@ -167,28 +173,32 @@ public class ActivityUtil {
 			data.put("type", MAIL_TYPE.RATED_MEDIA_RESOURCE);
 			data.put("text", "Rated media resource");
 			break;
-			
+
 		default:
 			data.put("type", null);
 			break;
 		}
 		return data;
 	}
-	
+
 	public static String getFormattedDate(String date) {
 		String[] d = date.split(" ");
 		return String.join(" ", Integer.parseInt(d[0]) + getDateSuffix(d[0]), d[1], d[2]);
 	}
-	
+
 	private static String getDateSuffix(String date) {
 		try {
 			int d = Integer.parseInt(date);
 			switch (d % 10) {
-			case 1: return "st";
-			case 2: return "nd";
-			case 3: return "rd";
-			default: return "th";
-			}			
+			case 1:
+				return "st";
+			case 2:
+				return "nd";
+			case 3:
+				return "rd";
+			default:
+				return "th";
+			}
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 		}
