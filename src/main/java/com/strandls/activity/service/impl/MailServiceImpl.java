@@ -70,6 +70,15 @@ public class MailServiceImpl implements MailService {
 		try {
 			List<Recipients> recipientsList = userService.getRecipients(objectType, objectId);
 			observationMailData observation = activity.getMailData().getObservationData();
+			
+			System.out.println();
+			System.out.println();
+			System.out.println("Data coming from observation");
+			System.out.println(observation.toString());
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			
 			List<UserGroupMailData> groups = activity.getMailData().getUserGroupData();
 			User who = userService.getUser(String.valueOf(userId));
 			RecoVoteActivity reco = null;

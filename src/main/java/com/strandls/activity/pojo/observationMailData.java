@@ -103,4 +103,11 @@ public class observationMailData {
 		this.authorId = authorId;
 	}
 
+	@Override
+	public String toString() {
+		return "observationMailData [observationId=" + observationId + ", location=" + location + ", observedOn="
+				+ observedOn + ", iconURl=" + iconURl + ", scientificName=" + scientificName + ", commonName="
+				+ commonName + ", authorId=" + authorId + "]";
+	}
+
 }
