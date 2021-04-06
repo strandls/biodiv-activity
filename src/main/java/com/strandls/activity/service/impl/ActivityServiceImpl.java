@@ -167,6 +167,8 @@ public class ActivityServiceImpl implements ActivityService {
 			objectType = ActivityEnums.document.getValue();
 		else if (objectType.equalsIgnoreCase("usergroup"))
 			objectType = ActivityEnums.userGroup.getValue();
+		else if (objectType.equalsIgnoreCase("species"))
+			objectType = ActivityEnums.species.getValue();
 
 		List<ShowActivityIbp> ibpActivity = new ArrayList<ShowActivityIbp>();
 		Integer commentCount = 0;
@@ -369,21 +371,33 @@ public class ActivityServiceImpl implements ActivityService {
 			}
 
 			activityResult = logDocActivities(request, userId, loggingData);
+		} else if (commentType.equalsIgnoreCase("species")) {
+			SpeciesActivityLogging loggingData = null;
+			if (result.getCommentHolderId().equals(result.getRootHolderId())) {
+				loggingData = new SpeciesActivityLogging(null, result.getRootHolderId(), result.getId(),
+						result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
+			} else {
+				loggingData = new SpeciesActivityLogging(null, result.getRootHolderId(), result.getCommentHolderId(),
+						result.getRootHolderType(), result.getId(), "Added a comment", commentData.getMailData());
+			}
+			activityResult = logSpeciesActivities(request, userId, loggingData);
 		}
 
 		if (activityResult != null) {
-			MailActivityData mailActivityData = new MailActivityData("Added a comment", null,
-					commentData.getMailData());
-			List<TaggedUser> taggedUsers = ActivityUtil.getTaggedUsers(commentData.getBody());
-			if (taggedUsers.size() > 0) {
-				mailService.sendMail(MAIL_TYPE.TAGGED_MAIL, activityResult.getRootHolderType(),
+			if (commentData.getMailData() != null) {
+				MailActivityData mailActivityData = new MailActivityData("Added a comment", null,
+						commentData.getMailData());
+				List<TaggedUser> taggedUsers = ActivityUtil.getTaggedUsers(commentData.getBody());
+				if (taggedUsers.size() > 0) {
+					mailService.sendMail(MAIL_TYPE.TAGGED_MAIL, activityResult.getRootHolderType(),
+							activityResult.getRootHolderId(), userId, commentData, mailActivityData, taggedUsers);
+				}
+				mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(),
 						activityResult.getRootHolderId(), userId, commentData, mailActivityData, taggedUsers);
-			}
-			mailService.sendMail(MAIL_TYPE.COMMENT_POST, activityResult.getRootHolderType(),
-					activityResult.getRootHolderId(), userId, commentData, mailActivityData, taggedUsers);
-			notificationSevice.sendNotification(mailActivityData, result.getRootHolderType(), result.getRootHolderId(),
-					"India Biodiversity Portal", mailActivityData.getActivityType());
+				notificationSevice.sendNotification(mailActivityData, result.getRootHolderType(),
+						result.getRootHolderId(), "India Biodiversity Portal", mailActivityData.getActivityType());
 
+			}
 		}
 
 		return activityResult;
@@ -492,6 +506,7 @@ public class ActivityServiceImpl implements ActivityService {
 		return null;
 	}
 
+//	SPECIES ACTIVITY LOGGING
 	@Override
 	public Activity logSpeciesActivities(HttpServletRequest request, Long userId, SpeciesActivityLogging loggingData) {
 		try {
