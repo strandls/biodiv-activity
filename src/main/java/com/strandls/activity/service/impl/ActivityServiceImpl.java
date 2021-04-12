@@ -131,8 +131,11 @@ public class ActivityServiceImpl implements ActivityService {
 
 //	SPECIES ACTIVITY LIST
 
-	List<String> speciesNullActivityList = new ArrayList<String>(Arrays.asList("Created species", "Added synonym",
-			"Updated synonym", "Deleted synonym", "Added common name", "Updated common name", "Deleted common name"));
+	List<String> speciesNullActivityList = new ArrayList<String>(
+			Arrays.asList("Created species", "Added synonym", "Updated synonym", "Deleted synonym"));
+
+	List<String> speciesCommonNameActivityList = new ArrayList<String>(
+			Arrays.asList("Added common name", "Updated common name", "Deleted common name"));
 
 	List<String> speciesActivityList = new ArrayList<String>(
 			Arrays.asList("Featured", "UnFeatured", "Updated species gallery"));
@@ -524,6 +527,11 @@ public class ActivityServiceImpl implements ActivityService {
 						loggingData.getActivityType(), userId, new Date(), new Date(), loggingData.getRootObjectId(),
 						ActivityEnums.species.getValue(), loggingData.getSubRootObjectId(),
 						ActivityEnums.species.getValue(), true, null);
+			} else if (speciesCommonNameActivityList.contains(loggingData.getActivityType())) {
+				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
+						ActivityEnums.commonName.getValue(), null, loggingData.getActivityType(), userId, new Date(),
+						new Date(), loggingData.getRootObjectId(), ActivityEnums.species.getValue(),
+						loggingData.getSubRootObjectId(), ActivityEnums.species.getValue(), true, null);
 			} else if (speciesFieldActivityList.contains(loggingData.getActivityType())) {
 				activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 						ActivityEnums.speciesField.getValue(), null, loggingData.getActivityType(), userId, new Date(),
