@@ -13,7 +13,8 @@ public enum ActivityEnums {
 	userGroup("species.groups.UserGroup"), facts("species.trait.Fact"), comments("species.participation.Comment"),
 	flag("species.participation.Flag"), user("species.auth.SUser"), customField("CustomField"),
 	filterRule("FilterRule"), document("content.eml.Document"), species("species.Species"),
-	speciesField("species.SpeciesField"), taxonomyRegistry("species.TaxonomyRegistry");
+	speciesField("species.SpeciesField"), taxonomyRegistry("species.TaxonomyRegistry"),
+	commonName("species.CommonNames");
 
 	String value;
 
