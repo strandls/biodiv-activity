@@ -14,7 +14,7 @@ public enum ActivityEnums {
 	flag("species.participation.Flag"), user("species.auth.SUser"), customField("CustomField"),
 	filterRule("FilterRule"), document("content.eml.Document"), species("species.Species"),
 	speciesField("species.SpeciesField"), taxonomyRegistry("species.TaxonomyRegistry"),
-	commonName("species.CommonNames");
+	taxonomyDefinition("species.TaxonomyDefinition"), commonName("species.CommonNames");
 
 	String value;
 
