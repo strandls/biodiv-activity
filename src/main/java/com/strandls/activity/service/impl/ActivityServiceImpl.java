@@ -74,6 +74,9 @@ public class ActivityServiceImpl implements ActivityService {
 	@Inject
 	private Headers headers;
 
+	private Long defaultLanguageId = Long
+			.parseLong(PropertyFileUtil.fetchProperty("config.properties", "defaultLanguageId"));
+
 	List<String> userGroupActivities = new ArrayList<String>(
 			Arrays.asList("Posted resource", "Removed resoruce", "Featured", "UnFeatured"));
 
@@ -339,13 +342,13 @@ public class ActivityServiceImpl implements ActivityService {
 		if (commentData.getRootHolderId().equals(commentData.getSubRootHolderId())) {
 			comment = new Comments(null, 0L, userId, commentData.getBody(), commentData.getSubRootHolderId(),
 					commentData.getSubRootHolderType(), new Date(), new Date(), commentData.getRootHolderId(),
-					commentData.getRootHolderType(), null, null, null, 205L);
+					commentData.getRootHolderType(), null, null, null, defaultLanguageId);
 
 		} else {
 			comment = new Comments(null, 0L, userId, commentData.getBody(), commentData.getSubRootHolderId(),
 					commentData.getSubRootHolderType(), new Date(), new Date(), commentData.getRootHolderId(),
 					commentData.getRootHolderType(), commentData.getSubRootHolderId(), commentData.getSubRootHolderId(),
-					null, 205L);
+					null, defaultLanguageId);
 
 		}
 
