@@ -157,6 +157,13 @@ public class ActivityServiceImpl implements ActivityService {
 
 	List<String> speciesUserGroupActivityList = new ArrayList<String>(
 			Arrays.asList("Featured", "UnFeatured", "Posted resource", "Removed resoruce"));
+	
+//	DOCUMENT ACTIVITY LIST 
+
+	List<String> dataTableNullActivityList = new ArrayList<String>(
+			Arrays.asList("Datatable created", "Datatable updated", "Datatable Deleted"));
+	
+	List<String> dataTableCommentActivityList = new ArrayList<String>(Arrays.asList("Added a comment"));
 
 	@Override
 	public Integer activityCount(String objectType, Long objectId) {
@@ -280,7 +287,12 @@ public class ActivityServiceImpl implements ActivityService {
 					ActivityEnums.observation.getValue(), null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),
 					loggingData.getRootObjectId(), ActivityEnums.observation.getValue(), true, null);
-		} else if (commentActivityList.contains(loggingData.getActivityType())) {
+		} else if (dataTableNullActivityList.contains(loggingData.getActivityType())) {
+		    activity = new Activity(null, 0L, null, null, null, null, loggingData.getActivityType(), userId, new Date(),
+					new Date(), loggingData.getRootObjectId(), ActivityEnums.datatable.getValue(),
+					loggingData.getRootObjectId(), ActivityEnums.datatable.getValue(), true, null);
+		} 
+		else if (commentActivityList.contains(loggingData.getActivityType())) {
 			activity = new Activity(null, 0L, loggingData.getActivityDescription(), loggingData.getActivityId(),
 					ActivityEnums.comments.getValue(), null, loggingData.getActivityType(), userId, new Date(),
 					new Date(), loggingData.getRootObjectId(), ActivityEnums.observation.getValue(),

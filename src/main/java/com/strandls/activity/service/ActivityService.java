@@ -35,5 +35,5 @@ public interface ActivityService {
 	public Activity logSpeciesActivities(HttpServletRequest request, Long userId, SpeciesActivityLogging loggingData);
 
 	public Integer activityCount(String objectType, Long objectId);
-
+	
 }
