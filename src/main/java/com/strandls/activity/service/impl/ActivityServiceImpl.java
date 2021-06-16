@@ -184,6 +184,8 @@ public class ActivityServiceImpl implements ActivityService {
 			objectType = ActivityEnums.userGroup.getValue();
 		else if (objectType.equalsIgnoreCase("species"))
 			objectType = ActivityEnums.species.getValue();
+		else if (objectType.equalsIgnoreCase("datatable"))
+			objectType = ActivityEnums.datatable.getValue();
 
 		List<ShowActivityIbp> ibpActivity = new ArrayList<ShowActivityIbp>();
 		Integer commentCount = 0;
