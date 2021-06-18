@@ -3,10 +3,13 @@
  */
 package com.strandls.activity.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * @author Abhishek Rudra
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CommentLoggingData {
 
 	private String body;
