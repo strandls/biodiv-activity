@@ -342,13 +342,14 @@ public class ActivityServiceImpl implements ActivityService {
 		if (commentData.getRootHolderId().equals(commentData.getSubRootHolderId())) {
 			comment = new Comments(null, 0L, userId, commentData.getBody(), commentData.getSubRootHolderId(),
 					commentData.getSubRootHolderType(), new Date(), new Date(), commentData.getRootHolderId(),
-					commentData.getRootHolderType(), null, null, null, defaultLanguageId);
+					commentData.getRootHolderType(), null, null, null,
+					commentData.getLanguageId() != null ? commentData.getLanguageId() : defaultLanguageId);
 
 		} else {
 			comment = new Comments(null, 0L, userId, commentData.getBody(), commentData.getSubRootHolderId(),
 					commentData.getSubRootHolderType(), new Date(), new Date(), commentData.getRootHolderId(),
 					commentData.getRootHolderType(), commentData.getSubRootHolderId(), commentData.getSubRootHolderId(),
-					null, defaultLanguageId);
+					null, commentData.getLanguageId() != null ? commentData.getLanguageId() : defaultLanguageId);
 
 		}
 
