@@ -8,7 +8,7 @@
 	<version>1.0.0</version>
 	<packaging>war</packaging>
 
-	<name>biodiv-activity-api</name>
+	<name>biodiv-activity</name>
 	<url>https://github.com/strandls/biodiv-activity</url>
 
 	<properties>
