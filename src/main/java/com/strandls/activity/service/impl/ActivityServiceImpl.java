@@ -287,28 +287,30 @@ public class ActivityServiceImpl implements ActivityService {
 					loggingData.getSubRootObjectId(), ActivityEnums.comments.getValue(), true, null);
 		}
 
-		Activity result = activityDao.save(activity);
-		try {
-			userService = headers.addUserHeader(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
-			userService.updateFollow("observation", loggingData.getRootObjectId().toString());
-			if (loggingData.getMailData() != null) {
-				Map<String, Object> data = ActivityUtil.getMailType(activity.getActivityType(), loggingData);
-				type = (MAIL_TYPE) data.get("type");
-				if (type != null && type != MAIL_TYPE.COMMENT_POST) {
-					MailActivityData mailActivityData = new MailActivityData(loggingData.getActivityType(),
-							loggingData.getActivityDescription(), loggingData.getMailData());
-					mailService.sendMail(type, result.getRootHolderType(), result.getRootHolderId(), userId, null,
-							mailActivityData, null);
-					notificationSevice.sendNotification(mailActivityData, result.getRootHolderType(),
-							result.getRootHolderId(), "India Biodiversity Portal", data.get("text").toString());
+		if (activity != null) {
+			activity = activityDao.save(activity);
+			try {
+				userService = headers.addUserHeader(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
+				userService.updateFollow("observation", loggingData.getRootObjectId().toString());
+				if (loggingData.getMailData() != null) {
+					Map<String, Object> data = ActivityUtil.getMailType(activity.getActivityType(), loggingData);
+					type = (MAIL_TYPE) data.get("type");
+					if (type != null && type != MAIL_TYPE.COMMENT_POST) {
+						MailActivityData mailActivityData = new MailActivityData(loggingData.getActivityType(),
+								loggingData.getActivityDescription(), loggingData.getMailData());
+						mailService.sendMail(type, activity.getRootHolderType(), activity.getRootHolderId(), userId,
+								null, mailActivityData, null);
+						notificationSevice.sendNotification(mailActivityData, activity.getRootHolderType(),
+								activity.getRootHolderId(), "India Biodiversity Portal", data.get("text").toString());
+					}
 				}
-			}
 
-		} catch (Exception e) {
-			logger.error(e.getMessage());
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
 		}
 
-		return result;
+		return activity;
 
 	}
 

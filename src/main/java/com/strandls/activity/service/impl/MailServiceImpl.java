@@ -91,12 +91,6 @@ public class MailServiceImpl implements MailService {
 
 			System.out.println("INSIDE MAIL SERVICE IMPL");
 
-			if (groups == null) {
-				System.out.println();
-				System.out.println("NULL IN GROUPS");
-				System.out.println();
-			}
-
 			if (groups != null && groups.size() > 0) {
 				for (UserGroupMailData mailData : groups) {
 					System.out.println("***** GroupFromAPI *****" + mailData.toString());
@@ -140,7 +134,6 @@ public class MailServiceImpl implements MailService {
 			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 					JsonUtil.mapToJSON(mailData));
 		} catch (Exception ex) {
-			ex.printStackTrace();
 			logger.error(ex.getMessage());
 		}
 	}
@@ -161,8 +154,8 @@ public class MailServiceImpl implements MailService {
 			model.put(COMMENT_POST.COMMENT_BODY.getAction(), modifiedComment);
 		}
 
-		if (type == MAIL_TYPE.FACT_ADDED || type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED || type == MAIL_TYPE.CUSTOM_FIELD_UPDATED
-				|| type == MAIL_TYPE.OBSERVATION_FLAGGED) {
+		if (type == MAIL_TYPE.FACT_ADDED || type == MAIL_TYPE.FACT_UPDATED || type == MAIL_TYPE.TAG_UPDATED
+				|| type == MAIL_TYPE.CUSTOM_FIELD_UPDATED || type == MAIL_TYPE.OBSERVATION_FLAGGED) {
 			model.put(COMMENT_POST.COMMENT_BODY.getAction(),
 					ActivityUtil.replaceFlaggedMessage(activity.getActivityDescription()));
 		} else if (type == MAIL_TYPE.FEATURED_POST || type == MAIL_TYPE.FEATURED_POST_IBP) {

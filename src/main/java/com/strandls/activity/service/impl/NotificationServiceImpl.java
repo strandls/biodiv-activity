@@ -6,6 +6,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.rabbitmq.client.Channel;
 import com.strandls.activity.RabbitMqConnection;
 import com.strandls.activity.pojo.MailActivityData;
@@ -19,6 +22,8 @@ import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.Recipients;
 
 public class NotificationServiceImpl implements NotificationService {
+
+	private final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
 	@Inject
 	private Channel channel;
@@ -60,7 +65,7 @@ public class NotificationServiceImpl implements NotificationService {
 				}
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex.getMessage());
 		}
 	}
 
