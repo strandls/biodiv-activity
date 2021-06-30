@@ -54,11 +54,8 @@ public class ApplicationConfig extends Application {
 			InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
 
 			Properties properties = new Properties();
-			try {
-				properties.load(in);
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
+
+			properties.load(in);
 
 			BeanConfig beanConfig = new BeanConfig();
 			beanConfig.setVersion(properties.getProperty("version"));
