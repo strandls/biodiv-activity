@@ -340,8 +340,8 @@ public class ActivityServiceImpl implements ActivityService {
 			commentData.setSubRootHolderId(commentData.getRootHolderId());
 			commentData.setSubRootHolderType(commentData.getRootHolderType());
 		}
-		commentData.setSubRootHolderType(ActivityEnums.valueOf(commentData.getSubRootHolderType()).getValue());
-		commentData.setRootHolderType(ActivityEnums.valueOf(commentData.getRootHolderType()).getValue());
+		commentData.setSubRootHolderType(ActivityEnums.valueOf(commentData.getSubRootHolderType().toUpperCase()).getValue());
+		commentData.setRootHolderType(ActivityEnums.valueOf(commentData.getRootHolderType().toUpperCase()).getValue());
 		Comments comment = null;
 		if (commentData.getRootHolderId().equals(commentData.getSubRootHolderId())) {
 			comment = new Comments(null, 0L, userId, commentData.getBody(), commentData.getSubRootHolderId(),
